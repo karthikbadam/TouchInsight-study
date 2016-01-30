@@ -117,7 +117,61 @@ function initialize(db, callback) {
 
 // get all data based on a query of specific dimensions
 
+function queryMovies(db, query, callback) {
 
+    var data = db.collection("movies")
+        .aggregate([
+            {
+                $match: query
+        },
+            {
+                $group: {
+                    "_id": {
+                        gross: "$Worldwide_Gross", 
+                        ratings: "$IMDB_Rating",
+                        budget: "$Production_Budget",
+                        date: "$Release_Date",
+                        director: "$Director",
+                        genre: "$Major_Genre";
+                    },
+                    "Worldwide_Gross": {
+                        $sum: "$Worldwide_Gross"
+                    }
+                }
+        },{
+                $sort: {
+                    "Worldwide_Gross": -1
+                }
+        }
+    ]);
+
+
+    data.toArray(function (err, docs) {
+        assert.equal(null, err);
+        console.log(docs.length);
+        callback(docs);
+    });
+
+}
+
+app.get('/getMovies', function (req, res, next) {
+
+    var params = url.parse(req.url, true).query;
+
+    var query = parseQueryString(params);
+
+    MongoClient.connect(mongourl, function (err, db) {
+        assert.equal(null, err);
+
+        queryMovies(db, query,
+            function (data) {
+                db.close();
+                res.write(JSON.stringify(data));
+                res.end();
+            });
+    });
+
+});
 
 
 MongoClient.connect(mongourl, function (err, db) {
