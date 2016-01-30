@@ -119,35 +119,64 @@ function initialize(db, callback) {
 
 function queryMovies(db, query, callback) {
 
-    var data = db.collection("movies")
-        .aggregate([
-            {
-                $match: query
+    if (query != 0) {
+
+        var data = db.collection("movies")
+            .aggregate([
+                {
+                    $match: query
         },
-            {
-                $group: {
-                    "_id": {
-                        gross: "$Worldwide_Gross", 
-                        ratings: "$IMDB_Rating",
-                        budget: "$Production_Budget",
-                        date: "$Release_Date",
-                        director: "$Director",
-                        genre: "$Major_Genre";
-                    },
-                    "Worldwide_Gross": {
-                        $sum: "$Worldwide_Gross"
+                {
+                    $group: {
+                        "_id": {
+                            Worldwide_Gross: "$Worldwide_Gross",
+                            IMDB_Rating: "$IMDB_Rating",
+                            Production_Budget: "$Production_Budget",
+                            Release_Date: "$Release_Date",
+                            Director: "$Director",
+                            Major_Genre: "$Major_Genre"
+                        },
+                        "Worldwide_Gross": {
+                            $sum: "$Worldwide_Gross"
+                        }
+                    }
+        }, {
+                    $sort: {
+                        "Worldwide_Gross": -1
+                    }
+        }
+            ]);
+
+    } else {
+
+
+        var data = db.collection("movies")
+            .aggregate([
+                {
+                    $group: {
+                        "_id": {
+                            Worldwide_Gross: "$Worldwide_Gross",
+                            IMDB_Rating: "$IMDB_Rating",
+                            Production_Budget: "$Production_Budget",
+                            Release_Date: "$Release_Date",
+                            Director: "$Director",
+                            Major_Genre: "$Major_Genre"
+                        },
+                        "Worldwide_Gross": {
+                            $sum: "$Worldwide_Gross"
+                        }
+                    }
+                }, {
+                    $sort: {
+                        "Worldwide_Gross": -1
                     }
                 }
-        },{
-                $sort: {
-                    "Worldwide_Gross": -1
-                }
-        }
-    ]);
+            ]);
+    }
+
 
 
     data.toArray(function (err, docs) {
-        assert.equal(null, err);
         console.log(docs.length);
         callback(docs);
     });
@@ -180,6 +209,92 @@ MongoClient.connect(mongourl, function (err, db) {
         db.close();
     });
 });
+
+// parse query string
+function parseQueryString(params) {
+
+    var data = qs.parse(params).data;
+
+    console.log(JSON.stringify(data));
+
+    if (data == "empty") {
+        return 0;
+    }
+
+    var query = {};
+
+    for (var i = 0; i < data.length; i++) {
+
+        var q = {};
+
+        var d = data[i];
+
+        switch (d.operator) {
+
+        case "range":
+            if (d.index == "Date") {
+                q[d.index] = {
+                    "$gte": d.value[0],
+                    "$lte": d.value[1]
+                };
+            } else {
+                q[d.index] = {
+                    "$gte": parseFloat(d.value[0]),
+                    "$lte": parseFloat(d.value[1])
+                };
+            }
+            break;
+
+        case "equal":
+            q[d.index] = d.value;
+            break;
+
+        case "in":
+            q[d.index] = {
+                "$in": d.value
+            };
+            break;
+
+        default:
+            console.log("Sorry, we are out of " + d.operator + ".");
+        }
+
+
+        switch (d.logic) {
+
+        case "AND":
+            query[d.index] = q[d.index];
+            break;
+
+        case "OR":
+            if (!query["$or"]) {
+                query["$or"] = [];
+            }
+            query["$or"].push(q);
+            break;
+
+        case "NOT":
+            query[d.index] = {
+                "$not": q[d.index]
+            };
+            break;
+
+        case "CLEAN":
+            query = {};
+            query[d.index] = q[d.index];
+            break;
+
+        default:
+            console.log("Sorry, we are out of " + d.logic + ".");
+        }
+
+    }
+    console.log(query);
+
+    return query;
+
+}
+
 
 
 // catch 404 and forward to error handler

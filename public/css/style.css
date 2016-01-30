@@ -17,3 +17,11 @@ body {
     border: 1px solid #222;   
     display: inline-block;
 }
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+

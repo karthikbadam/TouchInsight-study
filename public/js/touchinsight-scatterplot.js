@@ -8,9 +8,9 @@ function ScatterPlot(options) {
 
     _self.margin = {
         top: 20,
-        right: 0,
-        bottom: 30,
-        left: 30
+        right: 20,
+        bottom: 20,
+        left: 40
     };
 
 
@@ -24,37 +24,48 @@ function ScatterPlot(options) {
 ScatterPlot.prototype.updateVisualization = function (data) {
 
     var _self = this;
+    
+    _self.formatValue = d3.format(".2s");
 
     _self.data = data;
 
     _self.x = d3.scale.linear()
-        .range([0, width]);
+        .range([0, _self.width]);
 
     _self.y = d3.scale.linear()
-        .range([height, 0]);
+        .range([_self.height, 0]);
 
-    _self.color = d3.scale.category10();
+    _self.color = d3.scale.category20();
 
     _self.xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom");
+        .scale(_self.x)
+        .orient("bottom")
+        .tickFormat(function(d) {return _self.formatValue(d*d)});
 
     _self.yAxis = d3.svg.axis()
         .scale(_self.y)
-        .orient("left");
+        .orient("left")
+        .tickFormat(function(d) {return _self.formatValue(d*d)});
 
-    _self.svg = d3.select("body").append("svg")
+    _self.svg = d3.select("#"+_self.parentId).append("svg")
         .attr("width", _self.width + _self.margin.left + _self.margin.right)
         .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
         .append("g")
         .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
 
     _self.x.domain(d3.extent(_self.data, function (d) {
-        return d[_self.cols[0]];
+        return Math.pow(d["_id"][_self.cols[0]], 0.5);
+        
+        return d["_id"][_self.cols[0]];
+        
+        return Math.log(d["_id"][_self.cols[0]]) > 0? Math.log(d["_id"][_self.cols[0]]): 0;
+    
     })).nice();
 
     _self.y.domain(d3.extent(_self.data, function (d) {
-        return d[_self.cols[1]];
+        return Math.pow(d["_id"][_self.cols[1]], 0.5);
+        return d["_id"][_self.cols[1]];
+        return Math.log(d["_id"][_self.cols[1]]) > 0? Math.log(d["_id"][_self.cols[1]]): 0;
     })).nice();
 
     _self.svg.append("g")
@@ -66,55 +77,63 @@ ScatterPlot.prototype.updateVisualization = function (data) {
         .attr("x", _self.width)
         .attr("y", -6)
         .style("text-anchor", "end")
+        .style("font-size", "14px")
         .text("Budget ($)");
 
-    _selfsvg.append("g")
+    _self.svg.append("g")
         .attr("class", "y axis")
-        .call(_selfyAxis)
+        .call(_self.yAxis)
         .append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Gross ($)")
+        .style("font-size", "14px")
+        .text("Gross ($)");
 
     _self.svg.selectAll(".dot")
         .data(_self.data)
         .enter().append("circle")
         .attr("class", "dot")
-        .attr("r", 3.5)
+        .attr("r", 2.5)
         .attr("cx", function (d) {
-            return _self.x(d[_self.cols[0]]);
+            return _self.x(Math.pow(d["_id"][_self.cols[0]], 0.5));
+            return _self.x(d["_id"][_self.cols[0]]);
+            return _self.x(Math.log(d["_id"][_self.cols[0]]) > 0? Math.log(d["_id"][_self.cols[0]]): 0);
         })
         .attr("cy", function (d) {
-            return _self.y(d[_self.cols[1]]);
+            return _self.y(Math.pow(d["_id"][_self.cols[1]], 0.5));
+            return _self.y(d["_id"][_self.cols[1]]);
+            return _self.y(Math.log(d["_id"][_self.cols[1]]) > 0? Math.log(d["_id"][_self.cols[1]]): 0);
         })
         .style("fill", function (d) {
-            return _self.color(d[genre]);
-        });
+            return "#4292c6";
+            return _self.color(d["_id"][genre]);
+        })
+        .style("fill-opacity", 0.5);
 
-    _self.legend = _self.svg.selectAll(".legend")
-        .data(_self.color.domain())
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function (d, i) {
-            return "translate(0," + i * 20 + ")";
-        });
-
-    _self.legend.append("rect")
-        .attr("x", _self.width - 18)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", _self.color);
-
-    _self.legend.append("text")
-        .attr("x", _self.width - 24)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function (d) {
-            return d;
-        });
+//    _self.legend = _self.svg.selectAll(".legend")
+//        .data(_self.color.domain())
+//        .enter().append("g")
+//        .attr("class", "legend")
+//        .attr("transform", function (d, i) {
+//            return "translate(45," + i * 20 + ")";
+//        });
+//
+//    _self.legend.append("rect")
+//        .attr("x", _self.width - 18)
+//        .attr("width", 18)
+//        .attr("height", 18)
+//        .style("fill", _self.color);
+//
+//    _self.legend.append("text")
+//        .attr("x", _self.width - 24)
+//        .attr("y", 9)
+//        .attr("dy", ".35em")
+//        .style("text-anchor", "end")
+//        .text(function (d) {
+//            return d;
+//        });
 
 }

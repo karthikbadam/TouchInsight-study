@@ -15,8 +15,6 @@ var PADDING = 5;
 
 var device = "DESKTOP";
 
-var colorscale = d3.scale.category10();
-
 var parseDate = d3.time.format("%d-%b-%y").parse;
 
 var queryStack = [];
@@ -26,6 +24,8 @@ var historyQueryStack = [];
 var touchSync;
 
 var top, left, right, bottom, main;
+
+var gross_time, genre_gross, gross_budget, genre_budget, director_gross;
 
 function setGlobalQuery(query, propagate) {
 
@@ -133,6 +133,8 @@ $(document).ready(function () {
     height = $("#content").height();
 
     createLayout();
+    
+    onDataLoaded();
 
     var query = {
         index1: budget,
@@ -145,7 +147,25 @@ $(document).ready(function () {
     };
     
     //send default query to server
-    
+    var _self = this;
+
+    $.ajax({
+
+        type: "GET",
+        url: "/getMovies",
+        data: {
+            data: [query]
+        }
+        
+    }).done(function (data) {
+        
+        data = JSON.parse(data);
+        
+        console.log(data.length);
+        
+        gross_budget.updateVisualization(data);
+        
+    });
 
 });
 
@@ -198,19 +218,19 @@ function createLayout() {
 function onDataLoaded() {
 
     //creating the views
-    gross_time = new TimeChart({
-        parentId: "topDiv",
-        cols: [date, gross],
-        width: $("#topDiv").width(),
-        height: $("#topDiv").height(),
-    });
-
-    genre_gross = new BarChart({
-        parentId: "leftDiv",
-        cols: [genre, gross],
-        width: $("#leftDiv").width(),
-        height: $("#leftDiv").height(),
-    });
+//    gross_time = new TimeChart({
+//        parentId: "topDiv",
+//        cols: [date, gross],
+//        width: $("#topDiv").width(),
+//        height: $("#topDiv").height(),
+//    });
+//
+//    genre_gross = new BarChart({
+//        parentId: "leftDiv",
+//        cols: [genre, gross],
+//        width: $("#leftDiv").width(),
+//        height: $("#leftDiv").height(),
+//    });
 
     gross_budget = new ScatterPlot({
         parentId: "mainDiv",
@@ -219,18 +239,18 @@ function onDataLoaded() {
         height: $("#mainDiv").height(),
     });
 
-    genre_budget = new Parallel({
-        parentId: "rightDiv",
-        cols: [genre, budget],
-        width: $("#rightDiv").width(),
-        height: $("#rightDiv").height(),
-    });
-
-    director_gross = new BarChart({
-        parentId: "bottomDiv",
-        cols: [director, gross],
-        width: $("#bottomDiv").width(),
-        height: $("#bottomDiv").height(),
-    });
+//    genre_budget = new Parallel({
+//        parentId: "rightDiv",
+//        cols: [genre, budget],
+//        width: $("#rightDiv").width(),
+//        height: $("#rightDiv").height(),
+//    });
+//
+//    director_gross = new BarChart({
+//        parentId: "bottomDiv",
+//        cols: [director, gross],
+//        width: $("#bottomDiv").width(),
+//        height: $("#bottomDiv").height(),
+//    });
 
 }
