@@ -134,6 +134,19 @@ $(document).ready(function () {
 
     createLayout();
 
+    var query = {
+        index1: budget,
+        operator1: "all",
+        value: "",
+        logic: "CLEAN",
+        index2: gross,
+        operator2: "all",
+        value: "",
+    };
+    
+    //send default query to server
+    
+
 });
 
 function createLayout() {
@@ -141,44 +154,44 @@ function createLayout() {
     top = d3.select("#content").append("div")
         .attr("id", "topDiv")
         .attr("class", "panel")
-        .style("width", 2*width/3)
-        .style("height", height/4 - 2)
+        .style("width", 2 * width / 3)
+        .style("height", height / 4 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden")
-        .style("margin-left", width/6);
-    
+        .style("margin-left", width / 6);
+
     left = d3.select("#content").append("div")
         .attr("id", "leftDiv")
         .attr("class", "panel")
-        .style("width", width/3 - 2)
-        .style("height", height/2 - 2)
+        .style("width", width / 3 - 2)
+        .style("height", height / 2 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden");
-    
+
     main = d3.select("#content").append("div")
         .attr("id", "mainDiv")
         .attr("class", "panel")
-        .style("width", width/3 - 2)
-        .style("height", height/2 - 2)
+        .style("width", width / 3 - 2)
+        .style("height", height / 2 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden");
-    
+
     right = d3.select("#content").append("div")
         .attr("id", "rightDiv")
         .attr("class", "panel")
-        .style("width", width/3 - 2)
-        .style("height", height/2 - 2)
+        .style("width", width / 3 - 2)
+        .style("height", height / 2 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden");
-    
+
     bottom = d3.select("#content").append("div")
         .attr("id", "bottomDiv")
         .attr("class", "panel")
-        .style("width", 2*width/3)
-        .style("height", height/4 - 2)
+        .style("width", 2 * width / 3)
+        .style("height", height / 4 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden")
-        .style("margin-left", width/6);
+        .style("margin-left", width / 6);
 
 }
 

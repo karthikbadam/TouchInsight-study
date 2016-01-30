@@ -18,15 +18,15 @@ function ScatterPlot (options) {
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
     
+}
+
+
+ScatterPlot.prototype.updateVisualization = function (data) {
     
-     var query = new Query({
-        index1: budget,
-        operator1: "all",
-        logic: "CLEAN",
-        index2: gross,
-        operator2: "all",         
-    });
+    var _self = this;
     
     
     
 }
+
+
