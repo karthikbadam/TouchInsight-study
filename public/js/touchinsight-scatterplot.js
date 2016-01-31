@@ -8,7 +8,7 @@ function ScatterPlot(options) {
 
     _self.margin = {
         top: 20,
-        right: 20,
+        right: 50,
         bottom: 20,
         left: 40
     };
@@ -35,7 +35,7 @@ ScatterPlot.prototype.updateVisualization = function (data) {
     _self.y = d3.scale.linear()
         .range([_self.height, 0]);
 
-    _self.color = d3.scale.category20();
+    _self.color = d3.scale.category10();
 
     _self.xAxis = d3.svg.axis()
         .scale(_self.x)
@@ -108,32 +108,34 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             return _self.y(Math.log(d["_id"][_self.cols[1]]) > 0? Math.log(d["_id"][_self.cols[1]]): 0);
         })
         .style("fill", function (d) {
-            return "#4292c6";
-            return _self.color(d["_id"][genre]);
+            //return "#4292c6";
+            return _self.color(Math.ceil(d["_id"][ratings]));
         })
-        .style("fill-opacity", 0.5);
+        .style("fill-opacity", function (d) {
+            return d['_id'][ratings]/20;
+        });
 
-//    _self.legend = _self.svg.selectAll(".legend")
-//        .data(_self.color.domain())
-//        .enter().append("g")
-//        .attr("class", "legend")
-//        .attr("transform", function (d, i) {
-//            return "translate(45," + i * 20 + ")";
-//        });
-//
-//    _self.legend.append("rect")
-//        .attr("x", _self.width - 18)
-//        .attr("width", 18)
-//        .attr("height", 18)
-//        .style("fill", _self.color);
-//
-//    _self.legend.append("text")
-//        .attr("x", _self.width - 24)
-//        .attr("y", 9)
-//        .attr("dy", ".35em")
-//        .style("text-anchor", "end")
-//        .text(function (d) {
-//            return d;
-//        });
+        _self.legend = _self.svg.selectAll(".legend")
+            .data(_self.color.domain())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function (d, i) {
+                return "translate(45," + i * 20 + ")";
+            });
+
+        _self.legend.append("rect")
+            .attr("x", _self.width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", _self.color);
+
+        _self.legend.append("text")
+            .attr("x", _self.width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function (d) {
+                return d;
+            });
 
 }

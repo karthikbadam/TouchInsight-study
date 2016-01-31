@@ -165,9 +165,104 @@ $(document).ready(function () {
         
         gross_budget.updateVisualization(data);
         
+        processByYear(data);
+        
+        processByGenre(data); 
+        
     });
 
 });
+
+
+function average (arr) {
+	return arr.reduce(function(memo, num)
+	{
+		return memo + num;
+	}, 0) / arr.length;
+}
+
+
+function processByYear (data) {
+       
+    var newData = {};
+    
+    data.forEach(function (d) {
+       
+        var cdate = new Date(d["_id"][date]);
+        var cyear = cdate.getFullYear();
+        
+        if (cyear > 2011) {
+            cyear = cyear-100;
+        }
+        
+        if (cyear in newData) {
+            newData[cyear][gross].push(d["_id"][gross]);
+            newData[cyear][budget].push(d["_id"][budget]);
+        
+        } else {
+        
+            newData[cyear] = {};
+            newData[cyear][gross] = [];
+            newData[cyear][budget] = [];
+        }
+    });
+    
+    Object.keys(newData).forEach(function (k) {
+        
+        if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
+            delete newData[k];
+            return;
+        }
+        
+        var avgGross = average(newData[k][gross]);
+        var avgBudget = average(newData[k][budget]);
+        
+        newData[k]["avg_"+gross] = avgGross;
+        newData[k]["avg_"+budget] = avgBudget;
+        
+    });
+    
+    console.log(newData);
+    
+    return newData;
+    
+}
+
+function processByGenre (data) {
+ 
+    var newData = {};
+    
+    data.forEach(function (d) {
+       
+        if (d["_id"][genre] in newData) {
+            newData[d["_id"][genre]][gross].push(d["_id"][gross]);
+            newData[d["_id"][genre]][budget].push(d["_id"][budget]);
+        
+        } else {
+        
+            newData[d["_id"][genre]] = {};
+            newData[d["_id"][genre]][gross] = [];
+            newData[d["_id"][genre]][budget] = [];
+        }
+    });
+    
+    Object.keys(newData).forEach(function (k) {
+        
+        if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
+            delete newData[k];
+            return;
+        }
+        
+        var avgGross = average(newData[k][gross]);
+        var avgBudget = average(newData[k][budget]);
+        
+        newData[k]["avg_"+gross] = avgGross;
+        newData[k]["avg_"+budget] = avgBudget;
+        
+    });
+    
+    return newData;
+}
 
 function createLayout() {
 

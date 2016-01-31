@@ -136,13 +136,13 @@ function queryMovies(db, query, callback) {
                             Director: "$Director",
                             Major_Genre: "$Major_Genre"
                         },
-                        "Worldwide_Gross": {
-                            $sum: "$Worldwide_Gross"
+                        "IMDB_Rating": {
+                            $sum: "$IMDB_Rating"
                         }
                     }
         }, {
                     $sort: {
-                        "Worldwide_Gross": -1
+                        "IMDB_Rating": -1
                     }
         }
             ]);
@@ -162,13 +162,13 @@ function queryMovies(db, query, callback) {
                             Director: "$Director",
                             Major_Genre: "$Major_Genre"
                         },
-                        "Worldwide_Gross": {
-                            $sum: "$Worldwide_Gross"
+                        "IMDB_Rating": {
+                            $sum: "$IMDB_Rating"
                         }
                     }
                 }, {
                     $sort: {
-                        "Worldwide_Gross": -1
+                        "IMDB_Rating": -1
                     }
                 }
             ]);
