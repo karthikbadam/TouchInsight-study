@@ -14,7 +14,7 @@ function Bar(options) {
         top: 5,
         right: 30,
         bottom: 30,
-        left: 55
+        left: 58
     };
 
 
@@ -67,7 +67,7 @@ Bar.prototype.updateVisualization = function (data) {
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.targetData.length;
-        _self.barH = 25;
+        _self.barH = 27;
 
         _self.bars = _self.svg.selectAll("g")
             .data(_self.targetData)

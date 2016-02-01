@@ -4,7 +4,7 @@ body {
     overflow: hidden;
     margin: 0px;
     font-family: "Helvetica Neue", "Segoe UI", Helvetica-Light, Arial, sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     background-color: white;
 }
 
@@ -14,7 +14,7 @@ body {
 }
 
 .panel {
-    border: 1px solid #222;   
+    border: 1px dotted #AAA;   
     display: inline-block;
 }
 
@@ -25,3 +25,11 @@ body {
   shape-rendering: crispEdges;
 }
 
+.tick line {
+    opacity: 0.1;
+}
+
+.tick text {
+    fill: #222;
+    
+}

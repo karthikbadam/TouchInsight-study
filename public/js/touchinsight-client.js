@@ -25,7 +25,7 @@ var touchSync;
 
 var top, left, right, bottom, main;
 
-var gross_time, genre_gross, gross_budget, genre_budget, director_gross;
+var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 function setGlobalQuery(query, propagate) {
 
@@ -169,9 +169,15 @@ $(document).ready(function () {
         
         var dataByGenre = processByGenre(data);
         
+        var dataByTime = processByYear(data);
+        
         genre_gross.updateVisualization(dataByGenre);
         
         genre_budget.updateVisualization(dataByGenre);
+        
+        gross_time.updateVisualization(dataByTime);
+        
+        budget_time.updateVisualization(dataByTime);
         
     });
 
@@ -211,7 +217,15 @@ function processByYear (data) {
         }
     });
     
+    var returnData = [];
+    
     Object.keys(newData).forEach(function (k) {
+        
+        var datum = {};
+        datum[date] = k; 
+        
+        if (k == "NaN") 
+            return;
         
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
             delete newData[k];
@@ -221,14 +235,16 @@ function processByYear (data) {
         var avgGross = average(newData[k][gross]);
         var avgBudget = average(newData[k][budget]);
         
-        newData[k]["avg_"+gross] = avgGross;
-        newData[k]["avg_"+budget] = avgBudget;
+        datum["avg_"+gross] = avgGross;
+        datum["avg_"+budget] = avgBudget;
+        datum['dist_'+gross] = newData[k][gross];
+        datum['dist_'+budget] = newData[k][budget];
+        
+        returnData.push(datum);
         
     });
     
-    console.log(newData);
-    
-    return newData;
+    return returnData;
     
 }
 
@@ -256,7 +272,6 @@ function processByGenre (data) {
         
         var datum = {};
         datum[genre] = k; 
-        
         
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
             delete newData[k];
@@ -327,19 +342,20 @@ function createLayout() {
 function onDataLoaded() {
 
     //creating the views
-//    gross_time = new TimeChart({
-//        parentId: "topDiv",
-//        cols: [date, gross],
-//        width: $("#topDiv").width(),
-//        height: $("#topDiv").height(),
-//    });
+    gross_time = new TimeChart({
+        parentId: "topDiv",
+        cols: [date, "avg_"+gross],
+        width: $("#topDiv").width(),
+        height: $("#topDiv").height(),
+        text: "Avg. Gross by Time"
+    });
 
     genre_gross = new Bar({
         parentId: "leftDiv",
         cols: [genre, "avg_"+gross],
         width: $("#leftDiv").width(),
         height: $("#leftDiv").height(),
-        text: "Avg. Gross"
+        text: "Avg. Gross by Genre"
     });
 
     gross_budget = new ScatterPlot({
@@ -354,14 +370,15 @@ function onDataLoaded() {
         cols: [genre,  "avg_"+budget],
         width: $("#rightDiv").width(),
         height: $("#rightDiv").height(),
-        text: "Avg. Budget"
+        text: "Avg. Budget by Genre"
     });
 
-//    director_gross = new BarChart({
-//        parentId: "bottomDiv",
-//        cols: [director, gross],
-//        width: $("#bottomDiv").width(),
-//        height: $("#bottomDiv").height(),
-//    });
+    budget_time = new TimeChart({
+        parentId: "bottomDiv",
+        cols: [date, "avg_"+budget],
+        width: $("#bottomDiv").width(),
+        height: $("#bottomDiv").height(),
+        text: "Avg. Budget by Time"
+    });
 
 }
