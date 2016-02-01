@@ -167,7 +167,11 @@ $(document).ready(function () {
         
         processByYear(data);
         
-        processByGenre(data); 
+        var dataByGenre = processByGenre(data);
+        
+        genre_gross.updateVisualization(dataByGenre);
+        
+        genre_budget.updateVisualization(dataByGenre);
         
     });
 
@@ -246,7 +250,13 @@ function processByGenre (data) {
         }
     });
     
+    var returnData = [];
+    
     Object.keys(newData).forEach(function (k) {
+        
+        var datum = {};
+        datum[genre] = k; 
+        
         
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
             delete newData[k];
@@ -256,12 +266,16 @@ function processByGenre (data) {
         var avgGross = average(newData[k][gross]);
         var avgBudget = average(newData[k][budget]);
         
-        newData[k]["avg_"+gross] = avgGross;
-        newData[k]["avg_"+budget] = avgBudget;
+        datum["avg_"+gross] = avgGross;
+        datum["avg_"+budget] = avgBudget;
+        datum['dist_'+gross] = newData[k][gross];
+        datum['dist_'+budget] = newData[k][budget];
+        
+        returnData.push(datum);
         
     });
     
-    return newData;
+    return returnData;
 }
 
 function createLayout() {
@@ -319,13 +333,14 @@ function onDataLoaded() {
 //        width: $("#topDiv").width(),
 //        height: $("#topDiv").height(),
 //    });
-//
-//    genre_gross = new BarChart({
-//        parentId: "leftDiv",
-//        cols: [genre, gross],
-//        width: $("#leftDiv").width(),
-//        height: $("#leftDiv").height(),
-//    });
+
+    genre_gross = new Bar({
+        parentId: "leftDiv",
+        cols: [genre, "avg_"+gross],
+        width: $("#leftDiv").width(),
+        height: $("#leftDiv").height(),
+        text: "Avg. Gross"
+    });
 
     gross_budget = new ScatterPlot({
         parentId: "mainDiv",
@@ -334,13 +349,14 @@ function onDataLoaded() {
         height: $("#mainDiv").height(),
     });
 
-//    genre_budget = new Parallel({
-//        parentId: "rightDiv",
-//        cols: [genre, budget],
-//        width: $("#rightDiv").width(),
-//        height: $("#rightDiv").height(),
-//    });
-//
+    genre_budget = new Bar({
+        parentId: "rightDiv",
+        cols: [genre,  "avg_"+budget],
+        width: $("#rightDiv").width(),
+        height: $("#rightDiv").height(),
+        text: "Avg. Budget"
+    });
+
 //    director_gross = new BarChart({
 //        parentId: "bottomDiv",
 //        cols: [director, gross],
