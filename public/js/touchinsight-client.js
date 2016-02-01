@@ -27,6 +27,8 @@ var top, left, right, bottom, main;
 
 var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
+var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -200,20 +202,23 @@ function processByYear (data) {
        
         var cdate = new Date(d["_id"][date]);
         var cyear = cdate.getFullYear();
+        var cmonth = month_names_short[cdate.getMonth()];
         
         if (cyear > 2011) {
             cyear = cyear-100;
         }
         
-        if (cyear in newData) {
-            newData[cyear][gross].push(d["_id"][gross]);
-            newData[cyear][budget].push(d["_id"][budget]);
+        cdate = cmonth + "/" + cyear;
+        
+        if (cdate in newData) {
+            newData[cdate][gross].push(d["_id"][gross]);
+            newData[cdate][budget].push(d["_id"][budget]);
         
         } else {
         
-            newData[cyear] = {};
-            newData[cyear][gross] = [];
-            newData[cyear][budget] = [];
+            newData[cdate] = {};
+            newData[cdate][gross] = [];
+            newData[cdate][budget] = [];
         }
     });
     
@@ -224,7 +229,7 @@ function processByYear (data) {
         var datum = {};
         datum[date] = k; 
         
-        if (k == "NaN") 
+        if (k == "undefined/NaN") 
             return;
         
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {

@@ -27,7 +27,7 @@ TimeChart.prototype.updateVisualization = function (data) {
     
     _self.targetData = data;
     
-    _self.parseDate = d3.time.format("%Y").parse;
+    _self.parseDate = d3.time.format("%b/%Y").parse;
 
     if (!_self.svg || _self.svg.select("path").empty()) {
 
@@ -74,6 +74,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             .ticks(_self.height / 20);
 
         var area = _self.area = d3.svg.area()
+            .interpolate("linear") 
             .x(function (d) {
                 return x(_self.parseDate(d[_self.cols[0]]));
             })
