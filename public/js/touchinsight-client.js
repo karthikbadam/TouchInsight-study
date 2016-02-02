@@ -37,7 +37,7 @@ var interactions = [{
         logic: "CLEAN"
     }, {
         index: gross,
-        value: [30000000, 3000000000],
+        value: [500000000, 3000000000],
         operator: "range",
         logic: "AND"
 
