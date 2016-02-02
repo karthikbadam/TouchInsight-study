@@ -33,3 +33,7 @@ body {
     fill: #222;
     
 }
+
+text {
+    cursor: default;
+}

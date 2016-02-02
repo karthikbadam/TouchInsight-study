@@ -76,11 +76,11 @@ TimeChart.prototype.updateVisualization = function (data) {
         var area = _self.area = d3.svg.area()
             .interpolate("linear") 
             .x(function (d) {
-                return x(_self.parseDate(d[_self.cols[0]]));
+                return _self.x(_self.parseDate(d[_self.cols[0]]));
             })
             .y0(_self.height)
             .y1(function (d) {
-                return y(d[_self.cols[1]]);
+                return _self.y(d[_self.cols[1]]);
             });
 
         x.domain(d3.extent(_self.targetData, function (d) {
@@ -125,15 +125,13 @@ TimeChart.prototype.updateVisualization = function (data) {
     } else {
 
         _self.targetData.sort(function (a, b) {
-            if (_self.parseDate(a["_id"]["Date"]).getTime() <
-                _self.parseDate(b["_id"]["Date"]).getTime()) {
-                return 1;
-            }
+            if (_self.parseDate(b[_self.cols[0]]).getTime() <
+                _self.parseDate(a[_self.cols[0]]).getTime()) return 1;
             return -1;
         });
 
         _self.y.domain(d3.extent(_self.targetData, function (d) {
-            return d[_self.target];
+            return d[_self.cols[1]];
         }));
 
         _self.yAxis.scale(_self.y);

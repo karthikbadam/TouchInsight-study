@@ -119,9 +119,15 @@ Bar.prototype.updateVisualization = function (data) {
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
-                return Math.pow(d[_self.target], 1);
+                return Math.pow(d[_self.cols[1]], 1);
             })])
             .range([0, _self.width]);
+        
+         _self.y = d3.scale.ordinal()
+            .domain(_self.targetData.map(function (d) {
+                return d[_self.cols[0]];
+            }))
+            .rangeBands([0, _self.height]);
 
         var rects = allBars.enter().append("g")
             .attr("transform", function (d, i) {
@@ -130,22 +136,11 @@ Bar.prototype.updateVisualization = function (data) {
 
         rects.append("rect")
             .attr("width", function (d) {
-                return _self.x(Math.pow(d[_self.target], 1));
+                return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1")
-            .style("cursor", "pointer")
-            .on("click", function () {
-                
-                var query = new Query({
-                    index: source,
-                    value: d3.select(this)[0][0].__data__["_id"][source],
-                    operator: "equal",
-                    logic: currentLogic
-                });
-
-                setGlobalQuery(query, 1);
-            });
+            .style("cursor", "pointer");
 
         rects.append("text")
             .attr("x", function (d) {
@@ -156,12 +151,12 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return  _self.myFormat(Math.round(d[_self.target]));
+                return  _self.myFormat(Math.round(d[_self.cols[1]]));
             })
             .style("pointer-events", "none");
 
         allBars.select("rect").attr("width", function (d) {
-                return _self.x(Math.pow(d[_self.target], 1));
+                return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1");
@@ -175,14 +170,9 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return _self.myFormat(Math.round(d[_self.target]));
+                return _self.myFormat(Math.round(d[_self.cols[1]]));
             });
 
-        _self.y = d3.scale.ordinal()
-            .domain(_self.targetData.map(function (d) {
-                return d["_id"][source];
-            }))
-            .rangeBands([0, _self.height]);
 
         var allText = _self.svg.selectAll("text.name").data(_self.targetData);
 
@@ -196,7 +186,7 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .text(function (d) {
-                return d["_id"][source];
+                return d[_self.cols[0]];
             });
 
         allText.attr("x", _self.margin.left - 5)
@@ -207,20 +197,9 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "end")
             .attr('class', 'name')
             .text(function (d) {
-                return d["_id"][source];
+                return d[_self.cols[0]];
             })
-            .style("cursor", "pointer")
-            .on("click", function () {
-        
-                var query = new Query({
-                    index: source,
-                    value: d3.select(this)[0][0].__data__["_id"][source],
-                    operator: "equal",
-                    logic: currentLogic
-                });
-
-                setGlobalQuery(query, 1);
-            });;
+            .style("cursor", "pointer");
 
     }
 

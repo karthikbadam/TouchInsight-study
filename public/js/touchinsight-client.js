@@ -29,6 +29,22 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+var interactions = [{
+    query: [{
+        index: budget,
+        value: [60000000, 320000000],
+        operator: "range",
+        logic: "CLEAN"
+    }, {
+        index: gross,
+        value: [30000000, 3000000000],
+        operator: "range",
+        logic: "AND"
+
+    }]
+}];
+
+
 function setGlobalQuery(query, propagate) {
 
     var currQuery = query;
@@ -135,7 +151,7 @@ $(document).ready(function () {
     height = $("#content").height();
 
     createLayout();
-    
+
     onDataLoaded();
 
     var query = {
@@ -148,153 +164,165 @@ $(document).ready(function () {
         value: "",
     };
     
-    //send default query to server
-    var _self = this;
+    createVisualizationfromQueryList ([query]);
+    
+    var delay=2000; //1 seconds
 
+    setTimeout(function(){
+      createVisualizationfromQueryList (interactions[0].query);
+    }, delay); 
+    
+    
+    
+
+});
+
+function createVisualizationfromQueryList (queryList) {
+    
     $.ajax({
 
         type: "GET",
         url: "/getMovies",
         data: {
-            data: [query]
+            data: queryList
         }
-        
+
     }).done(function (data) {
-        
+
         data = JSON.parse(data);
-        
+
         console.log(data.length);
-        
+
         gross_budget.updateVisualization(data);
-        
+
         processByYear(data);
-        
+
         var dataByGenre = processByGenre(data);
-        
+
         var dataByTime = processByYear(data);
-        
+
         genre_gross.updateVisualization(dataByGenre);
-        
+
         genre_budget.updateVisualization(dataByGenre);
-        
+
         gross_time.updateVisualization(dataByTime);
-        
+
         budget_time.updateVisualization(dataByTime);
-        
+
     });
-
-});
-
-
-function average (arr) {
-	return arr.reduce(function(memo, num)
-	{
-		return memo + num;
-	}, 0) / arr.length;
+    
 }
 
 
-function processByYear (data) {
-       
+
+function average(arr) {
+    return arr.reduce(function (memo, num) {
+        return memo + num;
+    }, 0) / arr.length;
+}
+
+
+function processByYear(data) {
+
     var newData = {};
-    
+
     data.forEach(function (d) {
-       
+
         var cdate = new Date(d["_id"][date]);
         var cyear = cdate.getFullYear();
         var cmonth = month_names_short[cdate.getMonth()];
-        
+
         if (cyear > 2011) {
-            cyear = cyear-100;
+            cyear = cyear - 100;
         }
-        
+
         cdate = cmonth + "/" + cyear;
-        
+
         if (cdate in newData) {
             newData[cdate][gross].push(d["_id"][gross]);
             newData[cdate][budget].push(d["_id"][budget]);
-        
+
         } else {
-        
+
             newData[cdate] = {};
             newData[cdate][gross] = [];
             newData[cdate][budget] = [];
         }
     });
-    
+
     var returnData = [];
-    
+
     Object.keys(newData).forEach(function (k) {
-        
+
         var datum = {};
-        datum[date] = k; 
-        
-        if (k == "undefined/NaN") 
+        datum[date] = k;
+
+        if (k == "undefined/NaN")
             return;
-        
+
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
             delete newData[k];
             return;
         }
-        
+
         var avgGross = average(newData[k][gross]);
         var avgBudget = average(newData[k][budget]);
-        
-        datum["avg_"+gross] = avgGross;
-        datum["avg_"+budget] = avgBudget;
-        datum['dist_'+gross] = newData[k][gross];
-        datum['dist_'+budget] = newData[k][budget];
-        
+
+        datum["avg_" + gross] = avgGross;
+        datum["avg_" + budget] = avgBudget;
+        datum['dist_' + gross] = newData[k][gross];
+        datum['dist_' + budget] = newData[k][budget];
+
         returnData.push(datum);
-        
+
     });
-    
+
     return returnData;
-    
+
 }
 
-function processByGenre (data) {
- 
+function processByGenre(data) {
+
     var newData = {};
-    
+
     data.forEach(function (d) {
-       
+
         if (d["_id"][genre] in newData) {
             newData[d["_id"][genre]][gross].push(d["_id"][gross]);
             newData[d["_id"][genre]][budget].push(d["_id"][budget]);
-        
+
         } else {
-        
+
             newData[d["_id"][genre]] = {};
             newData[d["_id"][genre]][gross] = [];
             newData[d["_id"][genre]][budget] = [];
         }
     });
-    
+
     var returnData = [];
-    
+
     Object.keys(newData).forEach(function (k) {
-        
+
         var datum = {};
-        datum[genre] = k; 
-        
+        datum[genre] = k;
+
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
             delete newData[k];
             return;
         }
-        
+
         var avgGross = average(newData[k][gross]);
         var avgBudget = average(newData[k][budget]);
-        
-        datum["avg_"+gross] = avgGross;
-        datum["avg_"+budget] = avgBudget;
-        datum['dist_'+gross] = newData[k][gross];
-        datum['dist_'+budget] = newData[k][budget];
-        
+
+        datum["avg_" + gross] = avgGross;
+        datum["avg_" + budget] = avgBudget;
+        datum['dist_' + gross] = newData[k][gross];
+        datum['dist_' + budget] = newData[k][budget];
+
         returnData.push(datum);
-        
+
     });
-    
+
     return returnData;
 }
 
@@ -349,7 +377,7 @@ function onDataLoaded() {
     //creating the views
     gross_time = new TimeChart({
         parentId: "topDiv",
-        cols: [date, "avg_"+gross],
+        cols: [date, "avg_" + gross],
         width: $("#topDiv").width(),
         height: $("#topDiv").height(),
         text: "Avg. Gross by Time"
@@ -357,7 +385,7 @@ function onDataLoaded() {
 
     genre_gross = new Bar({
         parentId: "leftDiv",
-        cols: [genre, "avg_"+gross],
+        cols: [genre, "avg_" + gross],
         width: $("#leftDiv").width(),
         height: $("#leftDiv").height(),
         text: "Avg. Gross by Genre"
@@ -372,7 +400,7 @@ function onDataLoaded() {
 
     genre_budget = new Bar({
         parentId: "rightDiv",
-        cols: [genre,  "avg_"+budget],
+        cols: [genre, "avg_" + budget],
         width: $("#rightDiv").width(),
         height: $("#rightDiv").height(),
         text: "Avg. Budget by Genre"
@@ -380,7 +408,7 @@ function onDataLoaded() {
 
     budget_time = new TimeChart({
         parentId: "bottomDiv",
-        cols: [date, "avg_"+budget],
+        cols: [date, "avg_" + budget],
         width: $("#bottomDiv").width(),
         height: $("#bottomDiv").height(),
         text: "Avg. Budget by Time"
