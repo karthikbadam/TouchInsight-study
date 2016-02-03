@@ -106,7 +106,6 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
-            .style("cursor", "pointer")
             .text(function (d) {
                 return d[_self.cols[0]];
             });
@@ -139,9 +138,8 @@ Bar.prototype.updateVisualization = function (data) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
             .attr("height", _self.barH - 5)
-            .attr("fill", "#9ecae1")
-            .style("cursor", "pointer");
-
+            .attr("fill", "#9ecae1");
+            
         rects.append("text")
             .attr("x", function (d) {
                 return 5;
@@ -198,8 +196,7 @@ Bar.prototype.updateVisualization = function (data) {
             .attr('class', 'name')
             .text(function (d) {
                 return d[_self.cols[0]];
-            })
-            .style("cursor", "pointer");
+            });
 
     }
 

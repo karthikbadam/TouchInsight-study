@@ -28,6 +28,7 @@ TimeChart.prototype.updateVisualization = function (data) {
     _self.targetData = data;
     
     _self.parseDate = d3.time.format("%b/%Y").parse;
+    _self.parseDate = d3.time.format("%Y").parse;
 
     if (!_self.svg || _self.svg.select("path").empty()) {
 

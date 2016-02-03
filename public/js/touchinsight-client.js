@@ -5,6 +5,8 @@ var date = "Release_Date";
 var director = "Director";
 var genre = "Major_Genre";
 
+var index = 0;
+
 var device = 0;
 
 var width = 0;
@@ -37,10 +39,45 @@ var interactions = [{
         logic: "CLEAN"
     }, {
         index: gross,
-        value: [500000000, 3000000000],
+        value: [2000000000, 3000000000],
         operator: "range",
         logic: "AND"
 
+    }]
+}, {
+    query: [{
+        index: ratings,
+        value: [8, 10],
+        operator: "range",
+        logic: "CLEAN"
+    }]
+}, {
+    query: [{
+        index: ratings,
+        value: [0, 4],
+        operator: "range",
+        logic: "CLEAN"
+    }]
+}, {
+    query: [{
+        index: budget,
+        value: [10000000, 20000000],
+        operator: "range",
+        logic: "CLEAN"
+    }]
+}, {
+    query: [{
+        index: ratings,
+        value: [2, 5, 10],
+        operator: "in",
+        logic: "CLEAN"
+    }]
+}, {
+    query: [{
+        index: budget,
+        value: [0, 200000000],
+        operator: "range",
+        logic: "CLEAN"
     }]
 }];
 
@@ -163,22 +200,30 @@ $(document).ready(function () {
         operator2: "all",
         value: "",
     };
-    
-    createVisualizationfromQueryList ([query]);
-    
-    var delay=2000; //1 seconds
 
-    setTimeout(function(){
-      createVisualizationfromQueryList (interactions[0].query);
-    }, delay); 
-    
-    
-    
+    createVisualizationfromQueryList([query]);
+
+    createDelay(index);
 
 });
 
-function createVisualizationfromQueryList (queryList) {
-    
+
+function createDelay(index) {
+    var delay = 2000; //1 seconds
+
+    setTimeout(function () {
+        createVisualizationfromQueryList(interactions[index].query);
+        if (index < interactions.length-1) {
+            createDelay(index + 1);
+        }
+
+    }, delay);
+
+
+}
+
+function createVisualizationfromQueryList(queryList) {
+
     $.ajax({
 
         type: "GET",
@@ -191,7 +236,7 @@ function createVisualizationfromQueryList (queryList) {
 
         data = JSON.parse(data);
 
-        console.log(data.length);
+        console.log(data);
 
         gross_budget.updateVisualization(data);
 
@@ -210,7 +255,7 @@ function createVisualizationfromQueryList (queryList) {
         budget_time.updateVisualization(dataByTime);
 
     });
-    
+
 }
 
 
@@ -236,7 +281,8 @@ function processByYear(data) {
             cyear = cyear - 100;
         }
 
-        cdate = cmonth + "/" + cyear;
+        //cdate = cmonth + "/" + cyear;
+        cdate = "" +cyear;
 
         if (cdate in newData) {
             newData[cdate][gross].push(d["_id"][gross]);
@@ -247,6 +293,8 @@ function processByYear(data) {
             newData[cdate] = {};
             newData[cdate][gross] = [];
             newData[cdate][budget] = [];
+            newData[cdate][gross].push(d["_id"][gross]);
+            newData[cdate][budget].push(d["_id"][budget]);
         }
     });
 
@@ -257,7 +305,7 @@ function processByYear(data) {
         var datum = {};
         datum[date] = k;
 
-        if (k == "undefined/NaN")
+        if (k == "undefined/NaN" || k == "NaN")
             return;
 
         if (newData[k][gross].length == 0 || newData[k][budget].length == 0) {
@@ -276,7 +324,18 @@ function processByYear(data) {
         returnData.push(datum);
 
     });
+    
+    if (returnData.length == 1) {
+        var newDatum = {};
+        
+        newDatum[date] = "" + (+returnData[0][date] - 1); 
+        newDatum["avg_" + gross] = 0;
+        newDatum["avg_" + budget] = 0;
+        
+        returnData.push(newDatum);
+    }
 
+    console.log(returnData);
     return returnData;
 
 }
@@ -296,6 +355,8 @@ function processByGenre(data) {
             newData[d["_id"][genre]] = {};
             newData[d["_id"][genre]][gross] = [];
             newData[d["_id"][genre]][budget] = [];
+            newData[d["_id"][genre]][gross].push(d["_id"][gross]);
+            newData[d["_id"][genre]][budget].push(d["_id"][budget]);
         }
     });
 
@@ -323,6 +384,8 @@ function processByGenre(data) {
 
     });
 
+    
+    console.log(returnData);
     return returnData;
 }
 

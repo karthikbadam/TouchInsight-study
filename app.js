@@ -250,6 +250,9 @@ function parseQueryString(params) {
             break;
 
         case "in":
+            for (var i = 0; i < d.value.length; i++) {
+                d.value[i] = parseFloat(d.value[i]);   
+            }
             q[d.index] = {
                 "$in": d.value
             };
