@@ -201,3 +201,271 @@ Bar.prototype.updateVisualization = function (data) {
     }
 
 }
+
+Bar.prototype.updateMicroViz = function (data) {
+    
+     var _self = this;
+
+    var direction = "left";
+    var axisDirection = "right";
+
+    _self.horizonWidth = _self.width + _self.margin.left + _self.margin.right;
+    _self.horizonHeight = _self.actualheight + _self.margin.top + _self.margin.bottom;
+
+    var majorDimension = _self.majorDimension = _self.horizonHeight;
+    var minorDimension = _self.minorDimension = _self.horizonWidth;
+
+    if (d3.select("#micro" + _self.parentId).empty() || _self.svg.select("rect").empty()) {
+
+        $("#" + _self.parentId).empty();
+
+        console.log("horizon" + _self.horizonHeight);
+
+        var barSize = 40;
+
+        var size = _self.majorDimension / barSize;
+
+        _self.targetData = data;
+
+        _self.svg = d3.select("#" + _self.parentId).append("svg")
+            .attr("id", "micro" + _self.parentId)
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight);
+
+        _self.opacityScale = d3.scale.linear()
+            .range([0.1, 1]);
+
+        _self.opacityScale.domain([0, d3.max(data, function (d) {
+            return d[_self.cols[1]];
+        })]);
+
+        var bar = _self.svg.selectAll(".high")
+            .data(data).enter()
+            .append("rect")
+            .attr("class", "high")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
+            })
+            .attr("height", function (d) {
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
+            })
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale(d[_self.cols[1]]);
+            });
+
+        var text = _self.svg.selectAll(".texthigh")
+            .data(data).enter()
+            .append("text")
+            .attr("class", "texthigh")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return (i + 1) * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
+            })
+            .style("width", barSize - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "11px")
+            .text(function (d) {
+                return d[_self.cols[0]];
+            });
+
+
+        _self.svg.append("text")
+            .attr("transform", "translate(" + 5 + "," + 10 + ")")
+            .text(_self.text)
+            .style("font-size", "11px");
+
+    } else {
+
+        _self.svg
+            .attr("width", _self.horizonWidth)
+            .attr("height", _self.horizonHeight)
+
+        var barSize = 40;
+
+        _self.targetData = data;
+        
+        _self.opacityScale = d3.scale.linear()
+            .range([0.1, 1]);
+
+        _self.opacityScale.domain([0, d3.max(data, function (d) {
+            return d[_self.cols[1]];
+        })]);
+
+    
+        var bar = _self.svg.selectAll(".high")
+            .data(data);
+
+        bar.exit().remove().transition().duration(500);
+
+        bar.enter()
+            .append("rect")
+            .transition().duration(500)
+            .attr("class", "high")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
+            })
+            .attr("height", function (d) {
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
+            })
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale(d[_self.cols[1]]);
+            });
+
+        bar.attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 0;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+
+                if (direction == "left" || direction == "right")
+                    return i * barSize;
+
+                if (direction == "top" || direction == "bottom")
+                    return 0;
+
+            })
+            .attr("height", function (d) {
+                if (direction == "left" || direction == "right")
+                    return barSize - 2;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension;
+
+            })
+            .attr("width", function (d) {
+                if (direction == "left" || direction == "right")
+                    return _self.minorDimension;
+
+                if (direction == "top" || direction == "bottom")
+                    return barSize - 2;
+            })
+            .attr("fill", "#9ecae1")
+            .attr("fill-opacity", function (d) {
+                return _self.opacityScale(d[_self.cols[1]]);
+            });
+
+        var text = _self.svg.selectAll(".texthigh")
+            .data(data);
+
+        text.exit().remove().transition().duration(500);
+
+        text.enter()
+            .append("text")
+            .transition().duration(500)
+            .attr("class", "texthigh")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return (i+1) *  barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
+            })
+            .style("width", barSize - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "11px")
+            .text(function (d) {
+                return d[_self.cols[0]];
+            });
+
+        text.attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return (i+1) * barSize - 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
+            })
+            .style("width", barSize - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "11px")
+            .text(function (d) {
+                return d[_self.cols[0]];
+            });
+
+    }
+
+}

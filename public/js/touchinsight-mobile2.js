@@ -15,7 +15,7 @@ var height = 0;
 
 var PADDING = 5;
 
-var device = "MOBILE1";
+var device = "DESKTOP";
 
 var parseDate = d3.time.format("%d-%b-%y").parse;
 
@@ -246,13 +246,13 @@ function createVisualizationfromQueryList(queryList) {
 
         var dataByTime = processByYear(data);
 
-        genre_gross.updateMicroViz(dataByGenre);
+        genre_gross.updateVisualization(dataByGenre);
 
-        genre_budget.updateMicroViz(dataByGenre);
+        genre_budget.updateVisualization(dataByGenre);
 
-        gross_time.updateMicroViz(dataByTime);
+        gross_time.updateVisualization(dataByTime);
 
-        budget_time.updateMicroViz(dataByTime);
+        budget_time.updateVisualization(dataByTime);
 
     });
 
