@@ -9,7 +9,7 @@ function ScatterPlot(options) {
     _self.margin = {
         top: 20,
         right: 50,
-        bottom: 20,
+        bottom: 30,
         left: 40
     };
 
@@ -17,6 +17,23 @@ function ScatterPlot(options) {
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
+    
+    if (options.scale) {
+        _self.scale = options.scale;
+        _self.margin = {
+            top: 20 * _self.scale,
+            right: 40 * _self.scale,
+            bottom: 40 * _self.scale,
+            left: 58 * _self.scale
+        };
+
+        _self.width = options.width - _self.margin.left - _self.margin.right;
+
+        _self.height = options.height - _self.margin.top - _self.margin.bottom;
+        
+    } else {
+        _self.scale = 1;   
+    }
 
 }
 
@@ -57,7 +74,9 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             .attr("width", _self.width + _self.margin.left + _self.margin.right)
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + _self.margin.left + "," + _self.margin.top + ")");
+            .attr("transform", "translate(" + 
+                  _self.margin.left + "," + _self.margin.top + ")")
+            .style("font-size", 14*_self.scale+"px");
 
         _self.x.domain(d3.extent(_self.targetData, function (d) {
             return Math.pow(d["_id"][_self.cols[0]], 0.5);
@@ -81,9 +100,9 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             .append("text")
             .attr("class", "label")
             .attr("x", _self.width)
-            .attr("y", -6)
+            .attr("y", -6*_self.scale)
             .style("text-anchor", "end")
-            .style("font-size", "14px")
+            .style("font-size", 14*_self.scale+"px")
             .text("Budget ($)");
 
         _self.svg.append("g")
@@ -92,10 +111,10 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             .append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 6*_self.scale)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .style("font-size", "14px")
+            .style("font-size", 14*_self.scale+"px")
             .text("Gross ($)");
 
         _self.svg.selectAll(".dot")
@@ -103,7 +122,7 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             .enter().append("circle")
             .attr("id", "scatter")
             .attr("class", "dot")
-            .attr("r", 2.5)
+            .attr("r", 2.5*_self.scale)
             .attr("cx", function (d) {
                 return _self.x(Math.pow(d["_id"][_self.cols[0]], 0.5));
                 return _self.x(d["_id"][_self.cols[0]]);
@@ -127,18 +146,18 @@ ScatterPlot.prototype.updateVisualization = function (data) {
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function (d, i) {
-                return "translate(45," + i * 20 + ")";
+                return "translate("+ 45*_self.scale + "," + i * 20*_self.scale + ")";
             });
 
         _self.legend.append("rect")
-            .attr("x", _self.width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
+            .attr("x", _self.width - 18*_self.scale)
+            .attr("width", 18*_self.scale)
+            .attr("height", 18*_self.scale)
             .style("fill", _self.color);
 
         _self.legend.append("text")
-            .attr("x", _self.width - 24)
-            .attr("y", 9)
+            .attr("x", _self.width - 24*_self.scale)
+            .attr("y", 9*_self.scale)
             .attr("dy", ".35em")
             .style("text-anchor", "end")
             .text(function (d) {
@@ -156,7 +175,7 @@ ScatterPlot.prototype.updateVisualization = function (data) {
         dots.enter().append("circle")
             .attr("id", "scatter")
             .attr("class", "dot")
-            .attr("r", 2.5)
+            .attr("r", 2.5*_self.scale)
             .attr("cx", function (d) {
                 return _self.x(Math.pow(d["_id"][_self.cols[0]], 0.5));
                 return _self.x(d["_id"][_self.cols[0]]);
@@ -175,7 +194,7 @@ ScatterPlot.prototype.updateVisualization = function (data) {
                 return d['_id'][ratings] / 20;
             });
         
-        dots.attr("r", 2.5)
+        dots.attr("r", 2.5*_self.scale)
             .attr("cx", function (d) {
                 return _self.x(Math.pow(d["_id"][_self.cols[0]], 0.5));
                 return _self.x(d["_id"][_self.cols[0]]);

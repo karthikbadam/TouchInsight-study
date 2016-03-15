@@ -37,3 +37,14 @@ body {
 text {
     cursor: default;
 }
+
+#overview {
+    width: 37%;
+    height: 37%;
+    position: absolute;
+    left: 62%;
+    top: 62%;
+    border: 1px solid #222;
+    background-color: white;
+    z-index: 100;
+}

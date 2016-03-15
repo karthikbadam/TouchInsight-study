@@ -21,26 +21,42 @@ function Bar(options) {
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
-    
+
     _self.myFormat = d3.format(',');
+
+    if (options.scale) {
+        _self.scale = options.scale;
+        _self.margin = {
+            top: 5 * _self.scale,
+            right: 30 * _self.scale,
+            bottom: 30 * _self.scale,
+            left: 58 * _self.scale
+        };
+
+        _self.width = options.width - _self.margin.left - _self.margin.right;
+
+        _self.actualheight = options.height - _self.margin.top - _self.margin.bottom;
+    } else {
+        _self.scale = 1;   
+    }
 }
 
 Bar.prototype.updateVisualization = function (data) {
 
     var _self = this;
-    
+
     _self.targetData = data;
-    
+
     d3.select("#" + _self.parentId).style("overflow", "hidden");
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
 
-        _self.height = 10000;
+        _self.height = 10000*_self.scale;
 
         d3.select("#" + _self.parentId).append("text")
-            .style("padding-left", "10px")
+            .style("padding-left", 10* _self.scale + "px")
             .text(_self.text)
-            .style("font-size", "14px");
+            .style("font-size", 14* _self.scale + "px");
 
         _self.svg = d3.select("#" + _self.parentId).append("div")
             .style("overflow", "scroll")
@@ -52,7 +68,8 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
-                _self.margin.top + ")");
+                _self.margin.top + ")")
+            .style("font-size",  14*_self.scale+"px");
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
@@ -67,7 +84,7 @@ Bar.prototype.updateVisualization = function (data) {
             .rangeBands([0, _self.height]);
 
         //_self.barH = _self.height / _self.targetData.length;
-        _self.barH = 27;
+        _self.barH = 30*_self.scale;
 
         _self.bars = _self.svg.selectAll("g")
             .data(_self.targetData)
@@ -121,8 +138,8 @@ Bar.prototype.updateVisualization = function (data) {
                 return Math.pow(d[_self.cols[1]], 1);
             })])
             .range([0, _self.width]);
-        
-         _self.y = d3.scale.ordinal()
+
+        _self.y = d3.scale.ordinal()
             .domain(_self.targetData.map(function (d) {
                 return d[_self.cols[0]];
             }))
@@ -139,7 +156,7 @@ Bar.prototype.updateVisualization = function (data) {
             })
             .attr("height", _self.barH - 5)
             .attr("fill", "#9ecae1");
-            
+
         rects.append("text")
             .attr("x", function (d) {
                 return 5;
@@ -149,7 +166,7 @@ Bar.prototype.updateVisualization = function (data) {
             .attr("text-anchor", "start")
             .attr("dy", ".35em")
             .text(function (d) {
-                return  _self.myFormat(Math.round(d[_self.cols[1]]));
+                return _self.myFormat(Math.round(d[_self.cols[1]]));
             })
             .style("pointer-events", "none");
 
@@ -203,8 +220,8 @@ Bar.prototype.updateVisualization = function (data) {
 }
 
 Bar.prototype.updateMicroViz = function (data) {
-    
-     var _self = this;
+
+    var _self = this;
 
     var direction = "left";
     var axisDirection = "right";
@@ -321,7 +338,7 @@ Bar.prototype.updateMicroViz = function (data) {
         var barSize = 40;
 
         _self.targetData = data;
-        
+
         _self.opacityScale = d3.scale.linear()
             .range([0.1, 1]);
 
@@ -329,7 +346,7 @@ Bar.prototype.updateMicroViz = function (data) {
             return d[_self.cols[1]];
         })]);
 
-    
+
         var bar = _self.svg.selectAll(".high")
             .data(data);
 
@@ -432,7 +449,7 @@ Bar.prototype.updateMicroViz = function (data) {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return (i+1) *  barSize - 5;
+                    return (i + 1) * barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;
@@ -454,7 +471,7 @@ Bar.prototype.updateMicroViz = function (data) {
             })
             .attr("y", function (d, i) {
                 if (direction == "left" || direction == "right")
-                    return (i+1) * barSize - 5;
+                    return (i + 1) * barSize - 5;
 
                 if (direction == "top" || direction == "bottom")
                     return _self.minorDimension - 5;

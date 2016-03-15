@@ -13,9 +13,13 @@ var width = 0;
 
 var height = 0;
 
+var sWidth = 0;
+
+var sHeight = 0;
+
 var PADDING = 5;
 
-var device = "DESKTOP";
+var device = "MOBILE2";
 
 var parseDate = d3.time.format("%d-%b-%y").parse;
 
@@ -25,9 +29,9 @@ var historyQueryStack = [];
 
 var touchSync;
 
-var top, left, right, bottom, main;
+var top, left, right, bottom, middle, main;
 
-var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
+var real_gross_budget, gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -186,6 +190,8 @@ $(document).ready(function () {
     //creating the layout
     width = $("#content").width();
     height = $("#content").height();
+    sWidth = $("#overview").width();
+    sHeight = $("#overview").height();
 
     createLayout();
 
@@ -239,6 +245,7 @@ function createVisualizationfromQueryList(queryList) {
         console.log(data);
 
         gross_budget.updateVisualization(data);
+        real_gross_budget.updateVisualization(data);
 
         processByYear(data);
 
@@ -253,6 +260,8 @@ function createVisualizationfromQueryList(queryList) {
         gross_time.updateVisualization(dataByTime);
 
         budget_time.updateVisualization(dataByTime);
+        
+        
 
     });
 
@@ -391,23 +400,48 @@ function processByGenre(data) {
 
 function createLayout() {
 
-    top = d3.select("#content").append("div")
+     top = d3.select("#overview").append("div")
         .attr("id", "topDiv")
         .attr("class", "panel")
-        .style("width", 9 * width / 10)
-        .style("height", height / 10 - 2)
+        .style("width", 2 * sWidth / 3)
+        .style("height", sHeight / 4 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden")
-        .style("margin-left", width / 20);
+        .style("margin-left", sWidth / 6);
 
-    left = d3.select("#content").append("div")
+    left = d3.select("#overview").append("div")
         .attr("id", "leftDiv")
         .attr("class", "panel")
-        .style("width", width / 10 - 2)
-        .style("height", 8 * height / 10 - 2)
+        .style("width", sWidth / 3 - 2)
+        .style("height", sHeight / 2 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden");
 
+    middle = d3.select("#overview").append("div")
+        .attr("id", "middleDiv")
+        .attr("class", "panel")
+        .style("width", sWidth / 3 - 2)
+        .style("height", sHeight / 2 - 2)
+        .style("background-color", "white")
+        .style("overflow", "hidden");
+
+    right = d3.select("#overview").append("div")
+        .attr("id", "rightDiv")
+        .attr("class", "panel")
+        .style("width", sWidth / 3 - 2)
+        .style("height", sHeight / 2 - 2)
+        .style("background-color", "white")
+        .style("overflow", "hidden");
+
+    bottom = d3.select("#overview").append("div")
+        .attr("id", "bottomDiv")
+        .attr("class", "panel")
+        .style("width", 2 * sWidth / 3)
+        .style("height", sHeight / 4 - 2)
+        .style("background-color", "white")
+        .style("overflow", "hidden")
+        .style("margin-left", sWidth / 6);
+    
     main = d3.select("#content").append("div")
         .attr("id", "mainDiv")
         .attr("class", "panel")
@@ -415,24 +449,6 @@ function createLayout() {
         .style("height", 8 * height / 10 - 2)
         .style("background-color", "white")
         .style("overflow", "hidden");
-
-    right = d3.select("#content").append("div")
-        .attr("id", "rightDiv")
-        .attr("class", "panel")
-        .style("width", width / 10 - 2)
-        .style("height", 8 * height / 10 - 2)
-        .style("background-color", "white")
-        .style("overflow", "hidden");
-
-    bottom = d3.select("#content").append("div")
-        .attr("id", "bottomDiv")
-        .attr("class", "panel")
-        .style("width", 9 * width / 10)
-        .style("height", height / 10 - 2)
-        .style("background-color", "white")
-        .style("overflow", "hidden")
-        .style("margin-left", width / 20);
-
 }
 
 function onDataLoaded() {
@@ -443,7 +459,8 @@ function onDataLoaded() {
         cols: [date, "avg_" + gross],
         width: $("#topDiv").width(),
         height: $("#topDiv").height(),
-        text: "Avg. Gross by Time"
+        text: "Avg. Gross by Time", 
+        scale: sWidth/width
     });
 
     genre_gross = new Bar({
@@ -451,14 +468,16 @@ function onDataLoaded() {
         cols: [genre, "avg_" + gross],
         width: $("#leftDiv").width(),
         height: $("#leftDiv").height(),
-        text: "Avg. Gross by Genre"
+        text: "Avg. Gross by Genre",
+        scale: sWidth/width
     });
 
     gross_budget = new ScatterPlot({
-        parentId: "mainDiv",
+        parentId: "middleDiv",
         cols: [budget, gross],
-        width: $("#mainDiv").width(),
-        height: $("#mainDiv").height(),
+        width: $("#middleDiv").width(),
+        height: $("#middleDiv").height(),
+        scale: sWidth/width
     });
 
     genre_budget = new Bar({
@@ -466,7 +485,8 @@ function onDataLoaded() {
         cols: [genre, "avg_" + budget],
         width: $("#rightDiv").width(),
         height: $("#rightDiv").height(),
-        text: "Avg. Budget by Genre"
+        text: "Avg. Budget by Genre",
+        scale: sWidth/width
     });
 
     budget_time = new TimeChart({
@@ -474,7 +494,15 @@ function onDataLoaded() {
         cols: [date, "avg_" + budget],
         width: $("#bottomDiv").width(),
         height: $("#bottomDiv").height(),
-        text: "Avg. Budget by Time"
+        text: "Avg. Budget by Time",
+        scale: sWidth/width
     });
 
+    real_gross_budget = new ScatterPlot({
+        parentId: "mainDiv",
+        cols: [budget, gross],
+        width: $("#mainDiv").width(),
+        height: $("#mainDiv").height(),
+    });
+    
 }

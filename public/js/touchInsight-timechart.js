@@ -18,6 +18,23 @@ function TimeChart(options) {
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
+    
+    if (options.scale) {
+        _self.scale = options.scale;
+        _self.margin = {
+            top: 10 * _self.scale,
+            right: 30 * _self.scale,
+            bottom: 30 * _self.scale,
+            left: 58 * _self.scale
+        };
+
+        _self.width = options.width - _self.margin.left - _self.margin.right;
+
+        _self.height = options.height - _self.margin.top - _self.margin.bottom;
+        
+    } else {
+        _self.scale = 1;   
+    }
 
 }
 
@@ -39,7 +56,8 @@ TimeChart.prototype.updateVisualization = function (data) {
             .attr("height", _self.height + _self.margin.top + _self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
-                _self.margin.top + ")");
+                _self.margin.top + ")")
+            .style("font-size", 14* _self.scale + "px");
 
         _self.x = d3.time.scale().range([0, _self.width]);
 
@@ -56,7 +74,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             })
             .innerTickSize(-_self.height)
             .outerTickSize(0)
-            .tickPadding(10);
+            .tickPadding(10* _self.scale);
 
         _self.xAxis.ticks(d3.time.years, 1);
 
@@ -71,8 +89,8 @@ TimeChart.prototype.updateVisualization = function (data) {
             .orient("left").tickFormat(d3.format("s"))
             .innerTickSize(-_self.width)
             .outerTickSize(0)
-            .tickPadding(10)
-            .ticks(_self.height / 20);
+            .tickPadding(10* _self.scale)
+            .ticks(Math.round(_self.height / 20));
 
         var area = _self.area = d3.svg.area()
             .interpolate("linear")
@@ -101,10 +119,10 @@ TimeChart.prototype.updateVisualization = function (data) {
             .attr("class", "y axis")
             .call(yAxis)
             .append("text")
-            .attr("x", 10)
+            .attr("x", 10* _self.scale)
             .attr("dy", "1em")
             .style("text-anchor", "start")
-            .style("font-size", "14px")
+            .style("font-size", 14* _self.scale + "px")
             .text(_self.text);
 
         _self.targetData.sort(function (a, b) {
