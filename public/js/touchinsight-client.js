@@ -32,59 +32,60 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 var interactions = [{
-    query: [{
-        index: budget,
-        value: [60000000, 320000000],
-        operator: "range",
-        logic: "CLEAN"
+        query: [{
+            index: budget,
+            value: [0, 100000000],
+            operator: "range",
+            logic: "CLEAN"
+    }]
+},
+    {
+        query: [{
+            index: budget,
+            value: [60000000, 320000000],
+            operator: "range",
+            logic: "CLEAN"
     }, {
-        index: gross,
-        value: [2000000000, 3000000000],
-        operator: "range",
-        logic: "AND"
+            index: gross,
+            value: [2000000000, 3000000000],
+            operator: "range",
+            logic: "AND"
 
     }]
 }, {
-    query: [{
-        index: ratings,
-        value: [8, 10],
-        operator: "range",
-        logic: "CLEAN"
+        query: [{
+            index: ratings,
+            value: [8, 10],
+            operator: "range",
+            logic: "CLEAN"
     }]
 }, {
-    query: [{
-        index: ratings,
-        value: [0, 4],
-        operator: "range",
-        logic: "CLEAN"
+        query: [{
+            index: ratings,
+            value: [0, 4],
+            operator: "range",
+            logic: "CLEAN"
     }]
 }, {
-    query: [{
-        index: budget,
-        value: [10000000, 20000000],
-        operator: "range",
-        logic: "CLEAN"
+        query: [{
+            index: budget,
+            value: [10000000, 20000000],
+            operator: "range",
+            logic: "CLEAN"
     }]
 }, {
-    query: [{
-        index: ratings,
-        value: [2, 5, 10],
-        operator: "in",
-        logic: "CLEAN"
+        query: [{
+            index: ratings,
+            value: [2, 5, 10],
+            operator: "in",
+            logic: "CLEAN"
     }]
 }, {
-    query: [{
-        index: budget,
-        value: [0, 200000000],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: director,
-        value: "Martin Scorsese",
-        operator: "equal",
-        logic: "CLEAN"
+        query: [{
+            index: director,
+            value: "Martin Scorsese",
+            operator: "equal",
+            logic: "CLEAN"
     }]
 }];
 
@@ -220,7 +221,7 @@ function createDelay(index) {
 
     setTimeout(function () {
         createVisualizationfromQueryList(interactions[index].query);
-        if (index < interactions.length-1) {
+        if (index < interactions.length - 1) {
             createDelay(index + 1);
         }
 
@@ -289,7 +290,7 @@ function processByYear(data) {
         }
 
         //cdate = cmonth + "/" + cyear;
-        cdate = "" +cyear;
+        cdate = "" + cyear;
 
         if (cdate in newData) {
             newData[cdate][gross].push(d["_id"][gross]);
@@ -331,14 +332,14 @@ function processByYear(data) {
         returnData.push(datum);
 
     });
-    
+
     if (returnData.length == 1) {
         var newDatum = {};
-        
-        newDatum[date] = "" + (+returnData[0][date] - 1); 
+
+        newDatum[date] = "" + (+returnData[0][date] - 1);
         newDatum["avg_" + gross] = 0;
         newDatum["avg_" + budget] = 0;
-        
+
         returnData.push(newDatum);
     }
 
@@ -391,7 +392,7 @@ function processByGenre(data) {
 
     });
 
-    
+
     console.log(returnData);
     return returnData;
 }

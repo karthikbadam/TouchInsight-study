@@ -18,7 +18,7 @@ function TimeChart(options) {
     _self.width = options.width - _self.margin.left - _self.margin.right;
 
     _self.height = options.height - _self.margin.top - _self.margin.bottom;
-    
+
     if (options.scale) {
         _self.scale = options.scale;
         _self.margin = {
@@ -31,11 +31,49 @@ function TimeChart(options) {
         _self.width = options.width - _self.margin.left - _self.margin.right;
 
         _self.height = options.height - _self.margin.top - _self.margin.bottom;
-        
+
     } else {
-        _self.scale = 1;   
+        _self.scale = 1;
     }
 
+    _self.dataDomain = null;
+
+}
+
+TimeChart.prototype.fillGaps = function (data) {
+
+    var _self = this;
+
+    var rd = {};
+
+    _self.dataDomain.forEach(function (d) {
+
+        rd[d] = 0;
+
+    });
+
+    data.forEach(function (d) {
+
+        var timeKey = d[_self.cols[0]];
+
+        rd[timeKey] = d[_self.cols[1]];
+
+    });
+
+    var returnData = [];
+
+    var keys = Object.keys(rd);
+
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+
+        var temp = {};
+        temp[_self.cols[0]] = key;
+        temp[_self.cols[1]] = rd[key];
+
+        returnData.push(temp);
+    }
+    return returnData;
 }
 
 TimeChart.prototype.updateVisualization = function (data) {
@@ -57,7 +95,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
                 _self.margin.top + ")")
-            .style("font-size",  11*_self.scale+"px");
+            .style("font-size", 11 * _self.scale + "px");
 
         _self.x = d3.time.scale().range([0, _self.width]);
 
@@ -74,7 +112,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             })
             .innerTickSize(-_self.height)
             .outerTickSize(0)
-            .tickPadding(10* _self.scale);
+            .tickPadding(10 * _self.scale);
 
         _self.xAxis.ticks(d3.time.years, 1);
 
@@ -89,7 +127,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             .orient("left").tickFormat(d3.format("s"))
             .innerTickSize(-_self.width)
             .outerTickSize(0)
-            .tickPadding(10* _self.scale)
+            .tickPadding(10 * _self.scale)
             .ticks(Math.round(_self.height / 20));
 
         var area = _self.area = d3.svg.area()
@@ -106,6 +144,12 @@ TimeChart.prototype.updateVisualization = function (data) {
             return _self.parseDate(d[_self.cols[0]]);
         }));
 
+        if (_self.dataDomain == null) {
+            _self.dataDomain = d3.map(_self.targetData, function (d) {
+                return d[_self.cols[0]];
+            });
+        }
+
         y.domain(d3.extent(_self.targetData, function (d) {
             return d[_self.cols[1]];
         }));
@@ -119,10 +163,10 @@ TimeChart.prototype.updateVisualization = function (data) {
             .attr("class", "y axis")
             .call(yAxis)
             .append("text")
-            .attr("x", 10* _self.scale)
+            .attr("x", 10 * _self.scale)
             .attr("dy", "1em")
             .style("text-anchor", "start")
-            .style("font-size", 14* _self.scale + "px")
+            .style("font-size", 14 * _self.scale + "px")
             .text(_self.text);
 
         _self.targetData.sort(function (a, b) {
@@ -143,13 +187,9 @@ TimeChart.prototype.updateVisualization = function (data) {
 
     } else {
 
-        _self.targetData.sort(function (a, b) {
-            if (_self.parseDate(b[_self.cols[0]]).getTime() <
-                _self.parseDate(a[_self.cols[0]]).getTime()) return 1;
-            return -1;
-        });
+        var returnData = _self.fillGaps(_self.targetData);
 
-        _self.y.domain(d3.extent(_self.targetData, function (d) {
+        _self.y.domain(d3.extent(returnData, function (d) {
             return d[_self.cols[1]];
         }));
 
@@ -158,8 +198,15 @@ TimeChart.prototype.updateVisualization = function (data) {
         _self.svg.select(".y.axis")
             .call(_self.yAxis);
 
+        returnData = returnData.sort(function (a, b) {
+            if (_self.parseDate(b[_self.cols[0]]).getTime() <
+                _self.parseDate(a[_self.cols[0]]).getTime()) return 1;
+            return -1;
+        });
+
         _self.svg.select("#time")
-            .datum(_self.targetData)
+            .datum(returnData)
+            .transition().duration(1000).ease("linear")
             .attr("d", _self.area)
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", 0.8)
@@ -177,7 +224,7 @@ TimeChart.prototype.updateMicroViz = function (data) {
     d3.select("#horizon-" + _self.cols[1]).remove();
 
     _self.targetData = data;
-    
+
     _self.parseDate = d3.time.format("%b/%Y").parse;
     _self.parseDate = d3.time.format("%Y").parse;
 
@@ -208,7 +255,7 @@ TimeChart.prototype.updateMicroViz = function (data) {
             .append("g")
             .attr("transform", "translate(" + _self.margin.left + "," +
                 _self.margin.top + ")");
-        
+
         // Offset so that positive is above-average and negative is below-average.
         var mean = _self.targetData.reduce(function (sum, v) {
             if (sum[_self.cols[1]])
@@ -256,9 +303,9 @@ TimeChart.prototype.updateMicroViz = function (data) {
             .attr("transform", "translate(" + 10 + "," + 15 + ")")
             .text(_self.text)
             .style("font-size", "13px");
-        
+
         var y = _self.y = d3.scale.linear()
-            .range([_self.height+_self.margin.bottom, 0]);
+            .range([_self.height + _self.margin.bottom, 0]);
 
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(_self.y)
@@ -269,13 +316,13 @@ TimeChart.prototype.updateMicroViz = function (data) {
             .ticks(_self.height / 20);
 
         y.domain(d3.extent(_self.targetData, function (d) {
-            return d[_self.cols[1]]/2;
+            return d[_self.cols[1]] / 2;
         }));
-        
+
         _self.svg.append("g")
             .attr("class", "y axis")
             .call(yAxis);
-        
+
     } else {
 
         _self.chart.width(_self.majorDimension)

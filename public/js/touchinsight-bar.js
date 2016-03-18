@@ -143,10 +143,12 @@ Bar.prototype.updateVisualization = function (data) {
                 return d[_self.cols[0]];
             });
 
-        allBars.exit().select("rect").attr("width", 3).attr("fill", "#AAA")
-            .attr("fill-opacity", 0.01).transition().delay(500);
-        allBars.exit().select("text").attr("fill", "#AAA")
-            .attr("fill-opacity", 0.01).transition().delay(500);
+        allBars.exit().select("rect").transition().duration(1000)
+            .attr("width", 3).attr("fill", "#AAA")
+            .attr("fill-opacity", 0.01);
+        
+        allBars.exit().select("text").transition().duration(1000).attr("fill", "#AAA")
+            .attr("fill-opacity", 0.01);
 
         _self.x = d3.scale.linear()
             .domain([0, d3.max(_self.targetData, function (d) {
@@ -160,34 +162,35 @@ Bar.prototype.updateVisualization = function (data) {
             }))
             .rangeBands([0, _self.height]);
 
-//        var rects = allBars.enter().append("g")
-//            .attr("transform", function (d, i) {
-//                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
-//            });
+        //        var rects = allBars.enter().append("g")
+        //            .attr("transform", function (d, i) {
+        //                return "translate(" + _self.margin.left + "," + i * _self.barH + ")";
+        //            });
 
-//        rects.append("rect")
-//            .attr("width", function (d) {
-//                return _self.x(Math.pow(d[_self.cols[1]], 1));
-//            })
-//            .attr("height", _self.barH - 5)
-//            .attr("fill-opacity", 1)
-//            .attr("fill", "#9ecae1");
+        //        rects.append("rect")
+        //            .attr("width", function (d) {
+        //                return _self.x(Math.pow(d[_self.cols[1]], 1));
+        //            })
+        //            .attr("height", _self.barH - 5)
+        //            .attr("fill-opacity", 1)
+        //            .attr("fill", "#9ecae1");
 
-//        rects.append("text")
-//            .attr("x", function (d) {
-//                return 5;
-//            })
-//            .attr("y", _self.barH / 3)
-//            .attr("fill", "#222")
-//            .attr("text-anchor", "start")
-//            .attr("dy", ".35em")
-//            .attr("fill-opacity", 1)
-//            .text(function (d) {
-//                return _self.myFormat(Math.round(d[_self.cols[1]]));
-//            })
-//            .style("pointer-events", "none");
+        //        rects.append("text")
+        //            .attr("x", function (d) {
+        //                return 5;
+        //            })
+        //            .attr("y", _self.barH / 3)
+        //            .attr("fill", "#222")
+        //            .attr("text-anchor", "start")
+        //            .attr("dy", ".35em")
+        //            .attr("fill-opacity", 1)
+        //            .text(function (d) {
+        //                return _self.myFormat(Math.round(d[_self.cols[1]]));
+        //            })
+        //            .style("pointer-events", "none");
 
         allBars.select("rect")
+            .transition().duration(1000)
             .attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
@@ -197,10 +200,11 @@ Bar.prototype.updateVisualization = function (data) {
 
         allBars
             .select("text")
-//            .attr("x", function (d) {
-//                return 5;
-//            })
-//            .attr("y", _self.barH / 3)
+            //            .attr("x", function (d) {
+            //                return 5;
+            //            })
+            //            .attr("y", _self.barH / 3)
+            .transition().duration(1000)
             .attr("fill", "#222")
             .attr("fill-opacity", 1)
             .attr("text-anchor", "start")
@@ -211,27 +215,27 @@ Bar.prototype.updateVisualization = function (data) {
 
 
         var allText = _self.svg.selectAll("text.name").data(data, function name(d) {
-                return d[_self.cols[0]];
-            });
+            return d[_self.cols[0]];
+        });
 
-        allText.exit().attr("fill", "#AAA").transition().duration(500);
+        allText.exit().transition().duration(1000).attr("fill", "#AAA");
 
-//        allText.enter().append("text")
-//            .attr("x", _self.margin.left - 5)
-//            .attr("y", function (d, i) {
-//                return i * _self.barH + _self.barH / 2;
-//            })
-//            .attr("fill", "#222")
-//            .attr("text-anchor", "end")
-//            .text(function (d) {
-//                return d[_self.cols[0]];
-//            });
+        //        allText.enter().append("text")
+        //            .attr("x", _self.margin.left - 5)
+        //            .attr("y", function (d, i) {
+        //                return i * _self.barH + _self.barH / 2;
+        //            })
+        //            .attr("fill", "#222")
+        //            .attr("text-anchor", "end")
+        //            .text(function (d) {
+        //                return d[_self.cols[0]];
+        //            });
 
-        allText
-//            .attr("x", _self.margin.left - 5)
-//            .attr("y", function (d, i) {
-//                return i * _self.barH + _self.barH / 2;
-//            })
+        allText.transition().duration(1000)
+            //            .attr("x", _self.margin.left - 5)
+            //            .attr("y", function (d, i) {
+            //                return i * _self.barH + _self.barH / 2;
+            //            })
             .attr("fill", "#222")
             .attr("text-anchor", "end")
             .attr('class', 'name')
