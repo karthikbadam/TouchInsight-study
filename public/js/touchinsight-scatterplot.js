@@ -10,7 +10,7 @@ function ScatterPlot(options) {
         top: 20,
         right: 50,
         bottom: 30,
-        left: 40
+        left: 50
     };
 
 

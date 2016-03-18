@@ -57,7 +57,7 @@ TimeChart.prototype.updateVisualization = function (data) {
             .append("g")
             .attr("transform", "translate(" + (_self.margin.left) + "," +
                 _self.margin.top + ")")
-            .style("font-size", 14* _self.scale + "px");
+            .style("font-size",  11*_self.scale+"px");
 
         _self.x = d3.time.scale().range([0, _self.width]);
 

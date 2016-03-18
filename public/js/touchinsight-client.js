@@ -79,6 +79,13 @@ var interactions = [{
         operator: "range",
         logic: "CLEAN"
     }]
+}, {
+    query: [{
+        index: director,
+        value: "Martin Scorsese",
+        operator: "equal",
+        logic: "CLEAN"
+    }]
 }];
 
 
