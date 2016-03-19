@@ -7,7 +7,7 @@ function TimeChart(options) {
     _self.cols = options.cols;
 
     _self.margin = {
-        top: 5,
+        top: 2,
         right: 10,
         bottom: 20,
         left: 45
@@ -221,7 +221,7 @@ TimeChart.prototype.updateMicroViz = function (data) {
 
     var _self = this;
 
-    d3.select("#horizon-" + _self.cols[1]).remove();
+    //d3.select("#horizon-" + _self.cols[1]).remove();
 
     _self.targetData = data;
 
@@ -268,16 +268,23 @@ TimeChart.prototype.updateMicroViz = function (data) {
         console.log(mean);
 
         mean = 0;
+        
         // Transpose column values to rows.
         var data = _self.targetData.map(function (d, i) {
             return [_self.parseDate(d[_self.cols[0]]), d[_self.cols[1]] - mean];
         });
 
-        _self.svg.data([data]).call(chart);
+        _self.svg.data([data]).transition().duration(1000).call(chart);
 
         _self.x = d3.time.scale().range([0, _self.width]);
 
         _self.x.domain([_self.parseDate("1915"), _self.parseDate("2011")]);
+        
+        if (_self.dataDomain == null) {
+            _self.dataDomain = d3.map(_self.targetData, function (d) {
+                return d[_self.cols[0]];
+            });
+        }
 
         var xAxis = _self.xAxis = d3.svg.axis()
             .scale(_self.x)
@@ -306,6 +313,10 @@ TimeChart.prototype.updateMicroViz = function (data) {
 
         var y = _self.y = d3.scale.linear()
             .range([_self.height + _self.margin.bottom, 0]);
+        
+        y.domain(d3.extent(_self.targetData, function (d) {
+            return d[_self.cols[1]] / 2;
+        }));
 
         var yAxis = _self.yAxis = d3.svg.axis()
             .scale(_self.y)
@@ -313,92 +324,59 @@ TimeChart.prototype.updateMicroViz = function (data) {
             .innerTickSize(-_self.width)
             .outerTickSize(0)
             .tickPadding(10)
-            .ticks(_self.height / 20);
-
-        y.domain(d3.extent(_self.targetData, function (d) {
-            return d[_self.cols[1]] / 2;
-        }));
+            .ticks(4);
 
         _self.svg.append("g")
             .attr("class", "y axis")
             .call(yAxis);
 
     } else {
+        
+         var returnData = _self.fillGaps(_self.targetData);
 
-        _self.chart.width(_self.majorDimension)
-            .height(_self.minorDimension);
-
-        _self.svg
-            .attr("width", _self.majorDimension)
-            .attr("height", _self.minorDimension)
-            .style("transform-origin", function () {
-                if (direction == "left")
-                    return "left bottom";
-
-                if (direction == "right")
-                    return "left bottom";
-
-
-            })
-            .style("-webkit-transform", function () {
-                if (direction == "left")
-                    return "translate(0px," + (-_self.minorDimension) + "px)" + " " + "rotate(90deg)";
-
-                if (direction == "right")
-                    return "translate(0px," + (-_self.minorDimension) + "px)" + " " + "rotate(90deg)";
-
-                return "translate(0px,0px)";
-            });
-
-        _self.targetData.sort(function (a, b) {
-            if (parseDate(b["_id"][date]).getTime() <
-                parseDate(a["_id"][date]).getTime()) return 1;
+        returnData = returnData.sort(function (a, b) {
+            if (_self.parseDate(b[_self.cols[0]]).getTime() <
+                _self.parseDate(a[_self.cols[0]]).getTime()) return 1;
             return -1;
         });
 
         var chart = _self.chart;
 
         // Offset so that positive is above-average and negative is below-average.
-        var mean = _self.targetData.reduce(function (sum, v) {
-
-            if (sum[_self.target])
-                return sum[_self.target] + v[_self.target];
+        var mean = returnData.reduce(function (sum, v) {
+            if (sum[_self.cols[1]])
+                return sum[_self.cols[1]] + v[_self.cols[1]];
             else
-                return sum + v[_self.target];
+                return sum + v[_self.cols[1]];
 
-        }) / _self.targetData.length;
+        }) / returnData.length;
 
         console.log(mean);
 
+        mean = 0;
+        
         // Transpose column values to rows.
-        var data = _self.targetData.map(function (d, i) {
-            return [parseDate(d["_id"][date]), d[_self.target] - mean];
+        var data = returnData.map(function (d, i) {
+            return [_self.parseDate(d[_self.cols[0]]), d[_self.cols[1]] - mean];
         });
+        
+        _self.svg.data([data]).call(_self.chart.duration(1000));
+            
+        //_self.svg;
+        
+        _self.y.domain(d3.extent(returnData, function (d) {
+            return d[_self.cols[1]] / 2;
+        }));
 
-        _self.svg.data([data]).call(chart);
+        var yAxis = _self.yAxis
+            .scale(_self.y)
+            .orient("left").tickFormat(d3.format("s"))
+            .innerTickSize(-_self.width)
+            .outerTickSize(0)
+            .tickPadding(10)
+            .ticks(4);
 
-        _self.x = d3.time.scale().range([0, _self.majorDimension]);
-
-        _self.x.domain([parseDate("1990"), parseDate("2009")]);
-
-        var xAxis = _self.xAxis = d3.svg.axis()
-            .scale(_self.x)
-            .orient("bottom")
-            .tickFormat(function (d) {
-                return d3.time.format('%Y')(new Date(d));
-            });
-
-        _self.xAxis.ticks(d3.time.years, 2);
-
-        _self.svg.select(".x.axis")
-            .attr("transform", "translate(0," + (_self.minorDimension - _self.margin.bottom) + ")")
-            .call(xAxis);
-
-        _self.svg.select(".x.axis").select("path")
-            .style("display", "none");
-
-
-        _self.svg.select("text")
-            .attr("transform", "translate(" + 10 + "," + 15 + ")");
+        _self.svg.select(".y.axis")
+            .call(yAxis);
     }
 }

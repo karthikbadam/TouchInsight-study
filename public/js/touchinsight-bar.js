@@ -388,10 +388,10 @@ Bar.prototype.updateMicroViz = function (data) {
                 return d[_self.cols[0]];
             });
 
-        bar.exit().attr("fill", "#CCC")
+        bar.exit().transition().duration(1000).attr("fill", "#CCC")
             .attr("fill-opacity", function (d) {
                 return 0.01;
-            }).transition().duration(500);
+            });
 
         //        bar.enter()
         //            .append("rect")
@@ -453,7 +453,7 @@ Bar.prototype.updateMicroViz = function (data) {
         //            })
 
 
-        bar.attr("height", function (d) {
+        bar.transition().duration(1000).attr("height", function (d) {
                 if (direction == "left" || direction == "right")
                     return barSize - 2;
 
@@ -471,14 +471,14 @@ Bar.prototype.updateMicroViz = function (data) {
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", function (d) {
                 return _self.opacityScale(d[_self.cols[1]]);
-            }).transition().delay(500);
+            });
 
         var text = _self.svg.selectAll(".texthigh")
             .data(data, function name(d) {
                 return d[_self.cols[0]];
             });
 
-        text.exit().attr("fill", "#CCC").transition().duration(500);
+        text.exit().transition().duration(1000).attr("fill", "#CCC");
 
         //        text.enter()
         //            .append("text")
@@ -506,7 +506,7 @@ Bar.prototype.updateMicroViz = function (data) {
         //                return d[_self.cols[0]];
         //            });
 
-        text
+        text.transition().duration(1000)
         //            .attr("x", function (d, i) {
         //                if (direction == "left" || direction == "right")
         //                    return 5;
