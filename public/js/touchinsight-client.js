@@ -89,105 +89,68 @@ var interactions = [{
     }]
 }];
 
+var currentTask = 0;
 
-function setGlobalQuery(query, propagate) {
+function playAfterCountdown(q) {
+    // enable panel
+    var delay = 500; //1 seconds
 
-    var currQuery = query;
+    setTimeout(function () {
+        d3.select("#count-down").style("background-image", "url('/images/two.png')");
 
-    var prevQuery = queryStack[queryStack.length - 1];
+        setTimeout(function () {
+            d3.select("#count-down").style("background-image", "url('/images/one.png')");
 
-    //    if (prevQuery && prevQuery.logic== "AND" && prevQuery.index == query.index) {
-    //        query.logic = "OR";   
-    //        prevQuery.logic = "OR"; 
-    //        queryStack[queryStack.length -  1] = prevQuery;
-    //
-    //    }
+            setTimeout(function () {
 
-    queryStack.push(query.getQueryString());
+                d3.select("#count-down").style("display", "none");
 
-    for (var i = queryStack.length - 1; i >= 0; i--) {
+                setTimeout(function () {
 
-        var q = queryStack[i];
+                    createVisualizationfromQueryList(q);
+                    
+                }, delay);
 
-        if (q.logic == "CLEAN") {
+            }, delay);
 
-            queryStack = queryStack.slice(i);
-            break;
-        }
-    }
+        }, delay);
 
-    touchSync.push(currQuery);
-
-    d3.selectAll(".extent").attr("width", 0).attr("x", 0);
-
-    historyQueryStack.push(query);
-
-    // update all other visualizations
-    if (propagate) {
-        geomap.postUpdate();
-        timechart.postUpdate();
-        passengerchart.postUpdate();
-        flightsbar.postUpdate();
-        passengersbar.postUpdate();
-        flightdistance.postUpdate();
-        passengerseats.postUpdate();
-        distancebar.postUpdate();
-        populationbar.postUpdate();
-    }
+    }, delay);
 
 }
 
 
-function clearAllQueries() {
-    if (queryStack.length == 0)
-        return;
+function playInteractions() {
 
-    queryStack.length = 0;
+    var dialog = d3.select("#dialog");
 
-    // context switched
-    var content = {};
-    content.action = "CLEAR";
-    //content.mainview = mainView;
-    touchSync.push(content);
+    dialog.select("#button-panel")
+        .select("#play-button")
+        .on("click", function () {
 
-    var query = new Query({
-        index: "Date",
-        value: ["1990", "2009"],
-        operator: "range",
-        logic: "CLEAN"
-    });
+            // disable the panel
+            dialog.style("display", "none");
 
-    setGlobalQuery(query, 1);
+            //start countdown
+            d3.select("#count-down").style("display", "block");
+
+            // play animation
+            playAfterCountdown(interactions[currentTask].query);
+
+            // enable panel
+            var delay = 5000; //1 seconds
+
+            setTimeout(function () {
+                d3.select("#count-down")
+                    .style("background-image", "url('/images/three.png')");
+
+                dialog.style("display", "block");
+            }, delay);
+
+        });
 }
 
-function clearRecentQuery() {
-    if (queryStack.length == 0)
-        return;
 
-    if (queryStack.length == 1)
-        clearAllQueries();
-
-    queryStack.pop();
-    historyQueryStack.pop();
-
-    // context switched
-    var content = {};
-    content.action = "UNDO";
-    //content.mainview = mainView;
-    touchSync.push(content);
-
-    // update all other visualizations
-    geomap.postUpdate();
-    timechart.postUpdate();
-    passengerchart.postUpdate();
-    flightsbar.postUpdate();
-    passengersbar.postUpdate();
-    flightdistance.postUpdate();
-    passengerseats.postUpdate();
-    distancebar.postUpdate();
-    populationbar.postUpdate();
-
-}
 
 $(document).ready(function () {
 
@@ -211,7 +174,8 @@ $(document).ready(function () {
 
     createVisualizationfromQueryList([query]);
 
-    createDelay(index);
+    //createDelay(index);
+    playInteractions();
 
 });
 
@@ -222,7 +186,7 @@ function createDelay(index) {
     setTimeout(function () {
         createVisualizationfromQueryList(interactions[index].query);
         if (index < interactions.length - 1) {
-            createDelay(index + 1);
+            //createDelay(index + 1);
         }
 
     }, delay);

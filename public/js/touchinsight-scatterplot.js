@@ -170,12 +170,13 @@ ScatterPlot.prototype.updateVisualization = function (data) {
         var dots = _self.svg.selectAll(".dot")
             .data(_self.targetData);
         
-        dots.exit().remove();
+        dots.exit().transition().duration(1000).remove();
         
         dots.enter().append("circle")
             .attr("id", "scatter")
             .attr("class", "dot")
             .attr("r", 2.5*_self.scale)
+            .transition().duration(500)
             .attr("cx", function (d) {
                 return _self.x(Math.pow(d["_id"][_self.cols[0]], 0.5));
                 return _self.x(d["_id"][_self.cols[0]]);
