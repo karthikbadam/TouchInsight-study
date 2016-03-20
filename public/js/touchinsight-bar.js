@@ -41,7 +41,7 @@ function Bar(options) {
     }
 }
 
-Bar.prototype.updateVisualization = function (data) {
+Bar.prototype.updateVisualization = function (data, duration) {
 
     var _self = this;
 
@@ -143,11 +143,11 @@ Bar.prototype.updateVisualization = function (data) {
                 return d[_self.cols[0]];
             });
 
-        allBars.exit().select("rect").transition().duration(1000)
+        allBars.exit().select("rect").transition().duration(duration)
             .attr("width", 3).attr("fill", "#AAA")
             .attr("fill-opacity", 0.01);
         
-        allBars.exit().select("text").transition().duration(1000).attr("fill", "#AAA")
+        allBars.exit().select("text").transition().duration(duration).attr("fill", "#AAA")
             .attr("fill-opacity", 0.01);
 
         _self.x = d3.scale.linear()
@@ -190,7 +190,7 @@ Bar.prototype.updateVisualization = function (data) {
         //            .style("pointer-events", "none");
 
         allBars.select("rect")
-            .transition().duration(1000)
+            .transition().duration(duration)
             .attr("width", function (d) {
                 return _self.x(Math.pow(d[_self.cols[1]], 1));
             })
@@ -204,7 +204,7 @@ Bar.prototype.updateVisualization = function (data) {
             //                return 5;
             //            })
             //            .attr("y", _self.barH / 3)
-            .transition().duration(1000)
+            .transition().duration(duration)
             .attr("fill", "#222")
             .attr("fill-opacity", 1)
             .attr("text-anchor", "start")
@@ -218,7 +218,7 @@ Bar.prototype.updateVisualization = function (data) {
             return d[_self.cols[0]];
         });
 
-        allText.exit().transition().duration(1000).attr("fill", "#AAA");
+        allText.exit().transition().duration(duration).attr("fill", "#AAA");
 
         //        allText.enter().append("text")
         //            .attr("x", _self.margin.left - 5)
@@ -231,7 +231,7 @@ Bar.prototype.updateVisualization = function (data) {
         //                return d[_self.cols[0]];
         //            });
 
-        allText.transition().duration(1000)
+        allText.transition().duration(duration)
             //            .attr("x", _self.margin.left - 5)
             //            .attr("y", function (d, i) {
             //                return i * _self.barH + _self.barH / 2;
@@ -247,7 +247,7 @@ Bar.prototype.updateVisualization = function (data) {
 
 }
 
-Bar.prototype.updateMicroViz = function (data) {
+Bar.prototype.updateMicroViz = function (data, duration) {
 
     var _self = this;
 
@@ -388,7 +388,7 @@ Bar.prototype.updateMicroViz = function (data) {
                 return d[_self.cols[0]];
             });
 
-        bar.exit().transition().duration(1000).attr("fill", "#CCC")
+        bar.exit().transition().duration(duration).attr("fill", "#CCC")
             .attr("fill-opacity", function (d) {
                 return 0.01;
             });
@@ -453,7 +453,7 @@ Bar.prototype.updateMicroViz = function (data) {
         //            })
 
 
-        bar.transition().duration(1000).attr("height", function (d) {
+        bar.transition().duration(duration).attr("height", function (d) {
                 if (direction == "left" || direction == "right")
                     return barSize - 2;
 
@@ -478,7 +478,7 @@ Bar.prototype.updateMicroViz = function (data) {
                 return d[_self.cols[0]];
             });
 
-        text.exit().transition().duration(1000).attr("fill", "#CCC");
+        text.exit().transition().duration(duration).attr("fill", "#CCC");
 
         //        text.enter()
         //            .append("text")
@@ -506,7 +506,7 @@ Bar.prototype.updateMicroViz = function (data) {
         //                return d[_self.cols[0]];
         //            });
 
-        text.transition().duration(1000)
+        text.transition().duration(duration)
         //            .attr("x", function (d, i) {
         //                if (direction == "left" || direction == "right")
         //                    return 5;

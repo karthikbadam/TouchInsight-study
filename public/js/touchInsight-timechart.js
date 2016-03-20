@@ -76,7 +76,7 @@ TimeChart.prototype.fillGaps = function (data) {
     return returnData;
 }
 
-TimeChart.prototype.updateVisualization = function (data) {
+TimeChart.prototype.updateVisualization = function (data, duration) {
 
     var _self = this;
 
@@ -193,9 +193,10 @@ TimeChart.prototype.updateVisualization = function (data) {
             return d[_self.cols[1]];
         }));
 
-        _self.yAxis.scale(_self.y);
+      _self.yAxis.scale(_self.y);
 
         _self.svg.select(".y.axis")
+            .transition().duration(duration).ease("linear")
             .call(_self.yAxis);
 
         returnData = returnData.sort(function (a, b) {
@@ -206,7 +207,7 @@ TimeChart.prototype.updateVisualization = function (data) {
 
         _self.svg.select("#time")
             .datum(returnData)
-            .transition().duration(1000).ease("linear")
+            .transition().duration(duration).ease("linear")
             .attr("d", _self.area)
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", 0.8)
@@ -217,7 +218,7 @@ TimeChart.prototype.updateVisualization = function (data) {
 
 }
 
-TimeChart.prototype.updateMicroViz = function (data) {
+TimeChart.prototype.updateMicroViz = function (data, duration) {
 
     var _self = this;
 
@@ -360,7 +361,7 @@ TimeChart.prototype.updateMicroViz = function (data) {
             return [_self.parseDate(d[_self.cols[0]]), d[_self.cols[1]] - mean];
         });
         
-        _self.svg.data([data]).call(_self.chart.duration(1000));
+        _self.svg.data([data]).call(_self.chart.duration(duration));
             
         //_self.svg;
         

@@ -36,7 +36,7 @@ var interactions = [{
             index: budget,
             value: [0, 100000000],
             operator: "range",
-            logic: "CLEAN"
+            logic: "CLEAN", 
     }]
 },
     {
@@ -44,7 +44,8 @@ var interactions = [{
             index: budget,
             value: [60000000, 320000000],
             operator: "range",
-            logic: "CLEAN"
+            logic: "CLEAN",
+            text: "Did the Avg. Budget after year 2005 decrease compared to before?"
     }, {
             index: gross,
             value: [2000000000, 3000000000],
@@ -89,11 +90,11 @@ var interactions = [{
     }]
 }];
 
-var currentTask = 0;
+var currentTask = 1;
 
 function playAfterCountdown(q) {
     // enable panel
-    var delay = 500; //1 seconds
+    var delay = 750; //1 seconds
 
     setTimeout(function () {
         d3.select("#count-down").style("background-image", "url('/images/two.png')");
@@ -107,7 +108,7 @@ function playAfterCountdown(q) {
 
                 setTimeout(function () {
 
-                    createVisualizationfromQueryList(q);
+                    createVisualizationfromQueryList(q, 1000);
                     
                 }, delay);
 
@@ -120,13 +121,16 @@ function playAfterCountdown(q) {
 }
 
 
-function playInteractions() {
+function playInteractions(currentTask) {
 
     var dialog = d3.select("#dialog");
+    
+    d3.select("#task-text").append("text").text(interactions[currentTask].query[0].text);
 
-    dialog.select("#button-panel")
-        .select("#play-button")
+    dialog.select("#button-panel").select("#play-button")
         .on("click", function () {
+        
+            createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
 
             // disable the panel
             dialog.style("display", "none");
@@ -143,11 +147,41 @@ function playInteractions() {
             setTimeout(function () {
                 d3.select("#count-down")
                     .style("background-image", "url('/images/three.png')");
-
                 dialog.style("display", "block");
+                
             }, delay);
 
         });
+    
+    
+    // true false
+    d3.select("#true-button").on("click", function () {
+        
+         d3.select("#false-button").style("background-color", "transparent");
+         d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
+        
+    });
+    
+    d3.select("#false-button").on("click", function () {
+        
+         d3.select("#true-button").style("background-color", "transparent");
+         d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
+        
+    });
+    
+    
+    d3.select("#next-button").on("click", function () {
+        
+        createVisualizationfromQueryList(interactions[currentTask].query, 0);
+        playInteractions(currentTask + 1)
+        
+    });
+    
+     d3.select("#previous-button").on("click", function () {
+        
+        playInteractions(currentTask - 1)
+        
+    });
 }
 
 
@@ -172,10 +206,11 @@ $(document).ready(function () {
         value: "",
     };
 
-    createVisualizationfromQueryList([query]);
+    //createVisualizationfromQueryList([query]);
 
     //createDelay(index);
-    playInteractions();
+    createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+    playInteractions(1);
 
 });
 
@@ -194,7 +229,7 @@ function createDelay(index) {
 
 }
 
-function createVisualizationfromQueryList(queryList) {
+function createVisualizationfromQueryList(queryList, duration) {
 
     $.ajax({
 
@@ -205,6 +240,10 @@ function createVisualizationfromQueryList(queryList) {
         }
 
     }).done(function (data) {
+        
+        if (duration == null) {
+            duration = 0;   
+        }
 
         data = JSON.parse(data);
 
@@ -218,13 +257,13 @@ function createVisualizationfromQueryList(queryList) {
 
         var dataByTime = processByYear(data);
 
-        genre_gross.updateVisualization(dataByGenre);
+        genre_gross.updateVisualization(dataByGenre, duration);
 
-        genre_budget.updateVisualization(dataByGenre);
+        genre_budget.updateVisualization(dataByGenre, duration);
 
-        gross_time.updateVisualization(dataByTime);
+        gross_time.updateVisualization(dataByTime, duration);
 
-        budget_time.updateVisualization(dataByTime);
+        budget_time.updateVisualization(dataByTime, duration);
 
     });
 
