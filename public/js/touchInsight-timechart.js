@@ -196,7 +196,7 @@ TimeChart.prototype.updateVisualization = function (data, duration) {
       _self.yAxis.scale(_self.y);
 
         _self.svg.select(".y.axis")
-            .transition().duration(duration).ease("linear")
+            .transition().duration(duration/2).ease("linear")
             .call(_self.yAxis);
 
         returnData = returnData.sort(function (a, b) {
@@ -207,7 +207,7 @@ TimeChart.prototype.updateVisualization = function (data, duration) {
 
         _self.svg.select("#time")
             .datum(returnData)
-            .transition().duration(duration).ease("linear")
+            .transition().delay(duration/2).duration(duration/2).ease("linear")
             .attr("d", _self.area)
             .attr("fill", "#9ecae1")
             .attr("fill-opacity", 0.8)
@@ -230,7 +230,7 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
     _self.parseDate = d3.time.format("%Y").parse;
 
     if (d3.select("#horizon-" + _self.cols[1]).empty() ||
-        _self.svg.select("path").empty()) {
+        _self.svg.select("path").empty() || duration == 0) {
 
         $("#" + _self.parentId).empty();
 
@@ -244,7 +244,7 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
             .width(_self.width)
             .height(_self.height + _self.margin.bottom)
             .bands(2)
-            .mode("mirror")
+            .mode("offset")
             .interpolate("basis");
 
         var chart = _self.chart;
@@ -341,6 +341,16 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
             return -1;
         });
 
+        _self.y.domain(d3.extent(returnData, function (d) {
+            return d[_self.cols[1]] / 2;
+        }));
+        
+         var yAxis = _self.yAxis
+            .scale(_self.y);
+
+        _self.svg.select(".y.axis")
+            .transition().duration(duration/2).call(yAxis);
+        
         var chart = _self.chart;
 
         // Offset so that positive is above-average and negative is below-average.
@@ -365,19 +375,8 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
             
         //_self.svg;
         
-        _self.y.domain(d3.extent(returnData, function (d) {
-            return d[_self.cols[1]] / 2;
-        }));
+        
 
-        var yAxis = _self.yAxis
-            .scale(_self.y)
-            .orient("left").tickFormat(d3.format("s"))
-            .innerTickSize(-_self.width)
-            .outerTickSize(0)
-            .tickPadding(10)
-            .ticks(4);
-
-        _self.svg.select(".y.axis")
-            .call(yAxis);
+       
     }
 }

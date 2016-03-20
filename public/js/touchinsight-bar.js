@@ -55,6 +55,8 @@ Bar.prototype.updateVisualization = function (data, duration) {
     d3.select("#" + _self.parentId).style("overflow", "hidden");
 
     if (!_self.svg || _self.svg.select("rect").empty()) {
+        
+        $("#" + _self.parentId).empty();
 
         _self.height = 10000 * _self.scale;
 
