@@ -32,58 +32,6 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 var interactions = [{
-    query: [{
-        index: budget,
-        value: [60000000, 320000000],
-        operator: "range",
-        logic: "CLEAN"
-    }, {
-        index: gross,
-        value: [2000000000, 3000000000],
-        operator: "range",
-        logic: "AND"
-
-    }]
-}, {
-    query: [{
-        index: ratings,
-        value: [8, 10],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: ratings,
-        value: [0, 4],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: budget,
-        value: [10000000, 20000000],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: ratings,
-        value: [2, 5, 10],
-        operator: "in",
-        logic: "CLEAN"
-    }]
-}, {
-    query: [{
-        index: budget,
-        value: [0, 200000000],
-        operator: "range",
-        logic: "CLEAN"
-    }]
-}];
-
-
-
-var interactions = [{
         query: [{
             index: budget,
             value: [0, 300000000],
