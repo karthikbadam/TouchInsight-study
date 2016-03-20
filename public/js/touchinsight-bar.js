@@ -146,7 +146,7 @@ Bar.prototype.updateVisualization = function (data, duration) {
         allBars.exit().select("rect").transition().duration(duration)
             .attr("width", 3).attr("fill", "#AAA")
             .attr("fill-opacity", 0.01);
-        
+
         allBars.exit().select("text").transition().duration(duration).attr("fill", "#AAA")
             .attr("fill-opacity", 0.01);
 
@@ -360,6 +360,34 @@ Bar.prototype.updateMicroViz = function (data, duration) {
                 return d[_self.cols[0]];
             });
 
+        var label = _self.svg.selectAll(".label")
+            .data(data, function name(d) {
+                return d[_self.cols[0]];
+            }).enter()
+            .append("text")
+            .attr("class", "label")
+            .attr("x", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return 5;
+
+                if (direction == "top" || direction == "bottom")
+                    return i * barSize;
+
+            })
+            .attr("y", function (d, i) {
+                if (direction == "left" || direction == "right")
+                    return (i + 1) * barSize + 10;
+
+                if (direction == "top" || direction == "bottom")
+                    return _self.minorDimension - 5;
+            })
+            .style("width", barSize - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "11px")
+            .text(function (d) {
+                return _self.myFormat(Math.round(d[_self.cols[1]]));
+            });
+
 
         _self.svg.append("text")
             .attr("transform", "translate(" + 5 + "," + 10 + ")")
@@ -376,8 +404,9 @@ Bar.prototype.updateMicroViz = function (data, duration) {
 
         _self.targetData = data;
 
-        _self.opacityScale = d3.scale.linear()
-            .range([0.1, 1]);
+        //        _self.opacityScale = d3.scale.linear()
+        //            .range([0.1, 1]);
+        //
 
         _self.opacityScale.domain([0, d3.max(data, function (d) {
             return d[_self.cols[1]];
@@ -507,21 +536,6 @@ Bar.prototype.updateMicroViz = function (data, duration) {
         //            });
 
         text.transition().duration(duration)
-        //            .attr("x", function (d, i) {
-        //                if (direction == "left" || direction == "right")
-        //                    return 5;
-        //
-        //                if (direction == "top" || direction == "bottom")
-        //                    return i * barSize;
-        //
-        //            })
-        //            .attr("y", function (d, i) {
-        //                if (direction == "left" || direction == "right")
-        //                    return (i + 1) * barSize - 5;
-        //
-        //                if (direction == "top" || direction == "bottom")
-        //                    return _self.minorDimension - 5;
-        //            })
             .style("width", barSize - 2)
             .attr("fill", "#222")
             .attr("font-size", "11px")
@@ -529,6 +543,21 @@ Bar.prototype.updateMicroViz = function (data, duration) {
                 return d[_self.cols[0]];
             });
 
-    }
 
+        var labels = _self.svg.selectAll(".label")
+            .data(data, function name(d) {
+                return d[_self.cols[0]];
+            });
+
+        labels.exit().transition().duration(duration).attr("fill", "white");
+
+        labels.transition().duration(duration)
+            .style("width", barSize - 2)
+            .attr("fill", "#222")
+            .attr("font-size", "11px")
+            .text(function (d) {
+                return _self.myFormat(Math.round(d[_self.cols[1]]));
+            });
+
+    }
 }
