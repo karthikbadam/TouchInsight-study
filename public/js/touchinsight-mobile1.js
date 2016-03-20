@@ -82,104 +82,170 @@ var interactions = [{
 }];
 
 
-function setGlobalQuery(query, propagate) {
 
-    var currQuery = query;
+var interactions = [{
+        query: [{
+            index: budget,
+            value: [0, 300000000],
+            operator: "range",
+            logic: "CLEAN", 
+    }]
+},
+    {
+        query: [{
+            index: budget,
+            value: [6000000, 320000000],
+            operator: "range",
+            logic: "CLEAN",
+            text: "Did the Avg. Budget after year 2005 decrease compared to before?"
+    }, {
+            index: gross,
+            value: [200000000, 3000000000],
+            operator: "range",
+            logic: "AND"
+    }]
+}, {
+        query: [{
+            index: ratings,
+            value: [8, 10],
+            operator: "range",
+            logic: "CLEAN",
+            text: "Did the Avg. Budget for Action movies increase?"
+    }]
+}, {
+        query: [{
+            index: ratings,
+            value: [0, 4],
+            operator: "range",
+            logic: "CLEAN",
+            text: "Did the Avg. Gross from Adventure movies increase?"
+    }]
+}, {
+        query: [{
+            index: budget,
+            value: [10000000, 20000000],
+            operator: "range",
+            logic: "CLEAN",
+            text: "Did the Avg. Budget after 2005 increase  ?"
+    }]
+}, {
+        query: [{
+            index: ratings,
+            value: [2, 5, 10],
+            operator: "in",
+            logic: "CLEAN"
+    }]
+}, {
+        query: [{
+            index: director,
+            value: "Martin Scorsese",
+            operator: "equal",
+            logic: "CLEAN"
+    }]
+}];
 
-    var prevQuery = queryStack[queryStack.length - 1];
+var currentTask = 1;
 
-    //    if (prevQuery && prevQuery.logic== "AND" && prevQuery.index == query.index) {
-    //        query.logic = "OR";   
-    //        prevQuery.logic = "OR"; 
-    //        queryStack[queryStack.length -  1] = prevQuery;
-    //
-    //    }
+function playAfterCountdown(q) {
+    // enable panel
+    var delay = 750; //1 seconds
 
-    queryStack.push(query.getQueryString());
+    setTimeout(function () {
+        d3.select("#count-down").style("background-image", "url('/images/two.png')");
 
-    for (var i = queryStack.length - 1; i >= 0; i--) {
+        setTimeout(function () {
+            d3.select("#count-down").style("background-image", "url('/images/one.png')");
 
-        var q = queryStack[i];
+            setTimeout(function () {
 
-        if (q.logic == "CLEAN") {
+                d3.select("#count-down").style("display", "none");
 
-            queryStack = queryStack.slice(i);
-            break;
-        }
-    }
+                setTimeout(function () {
 
-    touchSync.push(currQuery);
+                    createVisualizationfromQueryList(q, 1000);
+                    
+                }, delay);
 
-    d3.selectAll(".extent").attr("width", 0).attr("x", 0);
+            }, delay);
 
-    historyQueryStack.push(query);
+        }, delay);
 
-    // update all other visualizations
-    if (propagate) {
-        geomap.postUpdate();
-        timechart.postUpdate();
-        passengerchart.postUpdate();
-        flightsbar.postUpdate();
-        passengersbar.postUpdate();
-        flightdistance.postUpdate();
-        passengerseats.postUpdate();
-        distancebar.postUpdate();
-        populationbar.postUpdate();
-    }
+    }, delay);
 
 }
 
 
-function clearAllQueries() {
-    if (queryStack.length == 0)
-        return;
+function playInteractions(currentTask) {
 
-    queryStack.length = 0;
+    var dialog = d3.select("#dialog");
+    
 
-    // context switched
-    var content = {};
-    content.action = "CLEAR";
-    //content.mainview = mainView;
-    touchSync.push(content);
+    // add new task description
+    d3.select("#task-text").select("text").remove();
+    d3.select("#task-text").append("text").text(interactions[currentTask].query[0].text);
+    
+    d3.select("#false-button").style("background-color", "transparent");
+    d3.select("#true-button").style("background-color", "transparent");
+    
 
-    var query = new Query({
-        index: "Date",
-        value: ["1990", "2009"],
-        operator: "range",
-        logic: "CLEAN"
+    dialog.select("#button-panel").select("#play-button")
+        .on("click", function () {
+        
+            // make sure the content is back to default
+            createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+
+            // disable the panel
+            dialog.style("display", "none");
+
+            //start countdown
+            d3.select("#count-down").style("display", "block");
+
+            // play animation
+            playAfterCountdown(interactions[currentTask].query);
+
+            // enable panel
+            var delay = 5000; //1 seconds
+
+            setTimeout(function () {
+                d3.select("#count-down")
+                    .style("background-image", "url('/images/three.png')");
+                dialog.style("display", "block");
+                
+            }, delay);
+
+        });
+    
+    
+    // true false
+    d3.select("#true-button").on("click", function () {
+        
+         d3.select("#false-button").style("background-color", "transparent");
+         d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
+        
     });
-
-    setGlobalQuery(query, 1);
+    
+    d3.select("#false-button").on("click", function () {
+        
+         d3.select("#true-button").style("background-color", "transparent");
+         d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
+        
+    });
+    
+    d3.select("#next-button").on("click", function () {
+        
+        createVisualizationfromQueryList(interactions[currentTask].query, 0);
+        playInteractions(currentTask + 1)
+        
+    });
+    
+     d3.select("#previous-button").on("click", function () {
+        
+        playInteractions(currentTask - 1)
+        
+    });
 }
 
-function clearRecentQuery() {
-    if (queryStack.length == 0)
-        return;
 
-    if (queryStack.length == 1)
-        clearAllQueries();
-
-    queryStack.pop();
-    historyQueryStack.pop();
-
-    // context switched
-    var content = {};
-    content.action = "UNDO";
-    //content.mainview = mainView;
-    touchSync.push(content);
-
-    // update all other visualizations
-    geomap.postUpdate();
-    timechart.postUpdate();
-    passengerchart.postUpdate();
-    flightsbar.postUpdate();
-    passengersbar.postUpdate();
-    flightdistance.postUpdate();
-    passengerseats.postUpdate();
-    distancebar.postUpdate();
-    populationbar.postUpdate();
-
-}
 
 $(document).ready(function () {
 
@@ -201,9 +267,9 @@ $(document).ready(function () {
         value: "",
     };
 
-    createVisualizationfromQueryList([query]);
-
-    createDelay(index);
+    createVisualizationfromQueryList(interactions[0].query, 0);
+    
+    playInteractions(1);
 
 });
 
@@ -213,8 +279,8 @@ function createDelay(index) {
 
     setTimeout(function () {
         createVisualizationfromQueryList(interactions[index].query);
-        if (index < interactions.length-1) {
-            createDelay(index + 1);
+        if (index < interactions.length - 1) {
+            //createDelay(index + 1);
         }
 
     }, delay);
@@ -222,7 +288,7 @@ function createDelay(index) {
 
 }
 
-function createVisualizationfromQueryList(queryList) {
+function createVisualizationfromQueryList(queryList, duration) {
 
     $.ajax({
 
@@ -233,6 +299,10 @@ function createVisualizationfromQueryList(queryList) {
         }
 
     }).done(function (data) {
+        
+        if (duration == null) {
+            duration = 0;   
+        }
 
         data = JSON.parse(data);
 
@@ -246,19 +316,17 @@ function createVisualizationfromQueryList(queryList) {
 
         var dataByTime = processByYear(data);
 
-        genre_gross.updateMicroViz(dataByGenre);
+        genre_gross.updateMicroViz(dataByGenre, duration);
 
-        genre_budget.updateMicroViz(dataByGenre);
+        genre_budget.updateMicroViz(dataByGenre, duration);
 
-        gross_time.updateMicroViz(dataByTime);
+        gross_time.updateMicroViz(dataByTime, duration);
 
-        budget_time.updateMicroViz(dataByTime);
+        budget_time.updateMicroViz(dataByTime, duration);
 
     });
 
 }
-
-
 
 function average(arr) {
     return arr.reduce(function (memo, num) {

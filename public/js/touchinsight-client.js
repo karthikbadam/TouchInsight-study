@@ -34,7 +34,7 @@ var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 var interactions = [{
         query: [{
             index: budget,
-            value: [0, 100000000],
+            value: [0, 300000000],
             operator: "range",
             logic: "CLEAN", 
     }]
@@ -42,37 +42,39 @@ var interactions = [{
     {
         query: [{
             index: budget,
-            value: [60000000, 320000000],
+            value: [6000000, 320000000],
             operator: "range",
             logic: "CLEAN",
             text: "Did the Avg. Budget after year 2005 decrease compared to before?"
     }, {
             index: gross,
-            value: [2000000000, 3000000000],
+            value: [200000000, 3000000000],
             operator: "range",
             logic: "AND"
-
     }]
 }, {
         query: [{
             index: ratings,
             value: [8, 10],
             operator: "range",
-            logic: "CLEAN"
+            logic: "CLEAN",
+            text: "Did the Avg. Budget for Action movies increase?"
     }]
 }, {
         query: [{
             index: ratings,
             value: [0, 4],
             operator: "range",
-            logic: "CLEAN"
+            logic: "CLEAN",
+            text: "Did the Avg. Gross from Adventure movies increase?"
     }]
 }, {
         query: [{
             index: budget,
             value: [10000000, 20000000],
             operator: "range",
-            logic: "CLEAN"
+            logic: "CLEAN",
+            text: "Did the Avg. Budget after 2005 increase  ?"
     }]
 }, {
         query: [{
@@ -125,11 +127,19 @@ function playInteractions(currentTask) {
 
     var dialog = d3.select("#dialog");
     
+
+    // add new task description
+    d3.select("#task-text").select("text").remove();
     d3.select("#task-text").append("text").text(interactions[currentTask].query[0].text);
+    
+    d3.select("#false-button").style("background-color", "transparent");
+    d3.select("#true-button").style("background-color", "transparent");
+    
 
     dialog.select("#button-panel").select("#play-button")
         .on("click", function () {
         
+            // make sure the content is back to default
             createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
 
             // disable the panel
@@ -169,7 +179,6 @@ function playInteractions(currentTask) {
         
     });
     
-    
     d3.select("#next-button").on("click", function () {
         
         createVisualizationfromQueryList(interactions[currentTask].query, 0);
@@ -206,10 +215,8 @@ $(document).ready(function () {
         value: "",
     };
 
-    //createVisualizationfromQueryList([query]);
-
-    //createDelay(index);
-    createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+    createVisualizationfromQueryList(interactions[0].query, 0);
+    
     playInteractions(1);
 
 });
