@@ -31,6 +31,8 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+var recordings = {};
+
 var interactions = [{
         query: [{
             index: budget,
@@ -139,6 +141,8 @@ function playInteractions(currentTask) {
     dialog.select("#button-panel").select("#play-button")
         .on("click", function () {
         
+            attempts++;
+        
             // make sure the content is back to default
             createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
 
@@ -181,19 +185,52 @@ function playInteractions(currentTask) {
     
     d3.select("#next-button").on("click", function () {
         
-        createVisualizationfromQueryList(interactions[currentTask].query, 0);
-        playInteractions(currentTask + 1)
+        var log = {};
+        
+        log.query = interactions[currentTask].query;
+        log.timing = Date.now() - startTime;
+        log.attempts = attempts;
+        
+        recordings[currentTask] = log;
+        
+        //restart
+        startTime = Date.now();  
+        attempts = 0;
+            
+        //createVisualizationfromQueryList(interactions[currentTask].query, 0);
+        
+        currentTask++;
+        
+        if (currentTask == interactions.length ) {
+         
+            console.log(recordings);
+            
+            return;
+        }
+        
+        playInteractions(currentTask);
         
     });
     
      d3.select("#previous-button").on("click", function () {
-        
-        playInteractions(currentTask - 1)
+         
+        if (currentTask == 0) 
+            return;
+         
+        //restart
+        startTime = Date.now();  
+        attempts = 0;
+          
+        //createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+         
+        currentTask--;
+        playInteractions(currentTask);
         
     });
 }
 
-
+var startTime = Date.now();
+var attempts = 0;
 
 $(document).ready(function () {
 

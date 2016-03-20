@@ -270,6 +270,22 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
 
         mean = 0;
         
+        if (_self.dataDomain == null) {
+            _self.dataDomain = d3.map(_self.targetData, function (d) {
+                return d[_self.cols[0]];
+            });
+        }
+        
+        var returnData = _self.fillGaps(_self.targetData);
+        
+        returnData = returnData.sort(function (a, b) {
+            if (_self.parseDate(b[_self.cols[0]]).getTime() <
+                _self.parseDate(a[_self.cols[0]]).getTime()) return 1;
+            return -1;
+        });
+        
+        _self.targetData = returnData;
+        
         // Transpose column values to rows.
         var data = _self.targetData.map(function (d, i) {
             return [_self.parseDate(d[_self.cols[0]]), d[_self.cols[1]] - mean];
@@ -280,12 +296,6 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
         _self.x = d3.time.scale().range([0, _self.width]);
 
         _self.x.domain([_self.parseDate("1915"), _self.parseDate("2011")]);
-        
-        if (_self.dataDomain == null) {
-            _self.dataDomain = d3.map(_self.targetData, function (d) {
-                return d[_self.cols[0]];
-            });
-        }
 
         var xAxis = _self.xAxis = d3.svg.axis()
             .scale(_self.x)
@@ -333,7 +343,7 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
 
     } else {
         
-         var returnData = _self.fillGaps(_self.targetData);
+        var returnData = _self.fillGaps(_self.targetData);
 
         returnData = returnData.sort(function (a, b) {
             if (_self.parseDate(b[_self.cols[0]]).getTime() <
@@ -374,9 +384,5 @@ TimeChart.prototype.updateMicroViz = function (data, duration) {
         _self.svg.data([data]).call(_self.chart.duration(duration));
             
         //_self.svg;
-        
-        
-
-       
     }
 }

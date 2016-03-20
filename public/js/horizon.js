@@ -12,6 +12,8 @@
         var color = d3.scale.linear()
             .domain([-1, 0, 0, 1])
             .range(["#08519c", "#f7fbff", "#f7fbff", "#4292c6"]);
+        
+        var parseDate = d3.time.format("%Y").parse;
 
         // For each small multiple…
         function horizon(g) {
@@ -37,7 +39,7 @@
                 });
 
                 // Compute the new x- and y-scales, and transform.
-                var x1 = d3.scale.linear().domain([xMin, xMax]).range([0, w]),
+                var x1 = d3.scale.linear().domain([parseDate("1915"), parseDate("2011")]).range([0, w]),
                     y1 = d3.scale.linear().domain([0, yMax]).range([0, h * bands]),
                     t1 = d3_horizonTransform(bands, h, mode);
 
