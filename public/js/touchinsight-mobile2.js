@@ -40,6 +40,8 @@ var attempts = 0;
 var recordings = {};
 var currentTask = 1;
 
+var interactions = interactions1;
+
 function playAfterCountdown(q) {
     // enable panel
     var delay = 750; //1 seconds
@@ -57,7 +59,7 @@ function playAfterCountdown(q) {
                 setTimeout(function () {
 
                     createVisualizationfromQueryList(q, 1000);
-                    
+
                 }, delay);
 
             }, delay);
@@ -68,25 +70,28 @@ function playAfterCountdown(q) {
 
 }
 
+var answer = 0;
 
 function playInteractions(currentTask) {
 
     var dialog = d3.select("#dialog");
-    
+
 
     // add new task description
     d3.select("#task-text").select("text").remove();
-    d3.select("#task-text").append("text").text(interactions[currentTask].query[0].text);
-    
+    d3.select("#task-text").append("text").text(currentTask + ": " + interactions[currentTask].query[0].text);
+
     d3.select("#false-button").style("background-color", "transparent");
     d3.select("#true-button").style("background-color", "transparent");
-    
+
 
     dialog.select("#button-panel").select("#play-button")
         .on("click", function () {
+
+            attempts++;
         
             // make sure the content is back to default
-            createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+            createVisualizationfromQueryList(interactions[0].query, 0);
 
             // disable the panel
             dialog.style("display", "none");
@@ -104,72 +109,79 @@ function playInteractions(currentTask) {
                 d3.select("#count-down")
                     .style("background-image", "url('/images/three.png')");
                 dialog.style("display", "block");
-                
+
             }, delay);
 
         });
-    
-    
+
+
     // true false
     d3.select("#true-button").on("click", function () {
-        
-         d3.select("#false-button").style("background-color", "transparent");
-         d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
-        
+
+        answer = 1;
+        d3.select("#false-button").style("background-color", "transparent");
+        d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
+
     });
-    
+
     d3.select("#false-button").on("click", function () {
-        
-         d3.select("#true-button").style("background-color", "transparent");
-         d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
-        
+
+
+        answer = 0;
+        d3.select("#true-button").style("background-color", "transparent");
+        d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
+
     });
-    
+
     d3.select("#next-button").on("click", function () {
-        
+
         var log = {};
-        
+
         log.query = interactions[currentTask].query;
         log.timing = Date.now() - startTime;
         log.attempts = attempts;
-        
+        log.answer = answer;
+        log.actual = interactions[currentTask].query[0].answer;
+
         recordings[currentTask] = log;
-        
+
         //restart
-        startTime = Date.now();  
+        startTime = Date.now();
         attempts = 0;
-            
-        //createVisualizationfromQueryList(interactions[currentTask].query, 0);
-        
+
+        createVisualizationfromQueryList(interactions[0].query, 0);
+
         currentTask++;
-        
-        if (currentTask == interactions.length ) {
-         
+
+        if (currentTask == interactions.length) {
+
             console.log(recordings);
-            
+
+            touchSync.push(recordings);
+
             dialog.style("display", "none");
-            
+
             return;
         }
-        
+
         playInteractions(currentTask);
-        
+
     });
-    
-     d3.select("#previous-button").on("click", function () {
-         
-        if (currentTask == 0) 
+
+    d3.select("#previous-button").on("click", function () {
+
+        if (currentTask == 0)
             return;
-         
+
         //restart
-        startTime = Date.now();  
+        startTime = Date.now();
         attempts = 0;
-          
-        //createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
-         
+
+        createVisualizationfromQueryList(interactions[0].query, 0);
+
         currentTask--;
         playInteractions(currentTask);
-        
+
     });
 }
 
@@ -182,7 +194,7 @@ $(document).ready(function () {
     height = $("#content").height();
     sWidth = $("#overview").width();
     sHeight = $("#overview").height();
-    
+
     createLayout();
 
     onDataLoaded();
@@ -198,8 +210,10 @@ $(document).ready(function () {
     };
 
     createVisualizationfromQueryList(interactions[0].query, 0);
-    
+
     playInteractions(1);
+
+    touchSync = new Sync({});
 
 });
 
@@ -229,9 +243,9 @@ function createVisualizationfromQueryList(queryList, duration) {
         }
 
     }).done(function (data) {
-        
+
         if (duration == null) {
-            duration = 0;   
+            duration = 0;
         }
 
         data = JSON.parse(data);
@@ -281,7 +295,7 @@ function processByYear(data) {
         }
 
         //cdate = cmonth + "/" + cyear;
-        cdate = "" +cyear;
+        cdate = "" + cyear;
 
         if (cdate in newData) {
             newData[cdate][gross].push(d["_id"][gross]);
@@ -323,14 +337,14 @@ function processByYear(data) {
         returnData.push(datum);
 
     });
-    
+
     if (returnData.length == 1) {
         var newDatum = {};
-        
-        newDatum[date] = "" + (+returnData[0][date] - 1); 
+
+        newDatum[date] = "" + (+returnData[0][date] - 1);
         newDatum["avg_" + gross] = 0;
         newDatum["avg_" + budget] = 0;
-        
+
         returnData.push(newDatum);
     }
 
@@ -383,14 +397,14 @@ function processByGenre(data) {
 
     });
 
-    
+
     console.log(returnData);
     return returnData;
 }
 
 function createLayout() {
 
-     top = d3.select("#overview").append("div")
+    top = d3.select("#overview").append("div")
         .attr("id", "topDiv")
         .attr("class", "panel")
         .style("width", 2 * sWidth / 3)
@@ -431,7 +445,7 @@ function createLayout() {
         .style("background-color", "white")
         .style("overflow", "hidden")
         .style("margin-left", sWidth / 6);
-    
+
     main = d3.select("#content").append("div")
         .attr("id", "mainDiv")
         .attr("class", "panel")
@@ -449,8 +463,8 @@ function onDataLoaded() {
         cols: [date, "avg_" + gross],
         width: $("#topDiv").width(),
         height: $("#topDiv").height(),
-        text: "Avg. Gross by Time", 
-        scale: sWidth/width
+        text: "Avg. Gross by Time",
+        scale: sWidth / width
     });
 
     genre_gross = new Bar({
@@ -459,7 +473,7 @@ function onDataLoaded() {
         width: $("#leftDiv").width(),
         height: $("#leftDiv").height(),
         text: "Avg. Gross by Genre",
-        scale: sWidth/width
+        scale: sWidth / width
     });
 
     gross_budget = new ScatterPlot({
@@ -467,7 +481,7 @@ function onDataLoaded() {
         cols: [budget, gross],
         width: $("#middleDiv").width(),
         height: $("#middleDiv").height(),
-        scale: sWidth/width
+        scale: sWidth / width
     });
 
     genre_budget = new Bar({
@@ -476,7 +490,7 @@ function onDataLoaded() {
         width: $("#rightDiv").width(),
         height: $("#rightDiv").height(),
         text: "Avg. Budget by Genre",
-        scale: sWidth/width
+        scale: sWidth / width
     });
 
     budget_time = new TimeChart({
@@ -485,7 +499,7 @@ function onDataLoaded() {
         width: $("#bottomDiv").width(),
         height: $("#bottomDiv").height(),
         text: "Avg. Budget by Time",
-        scale: sWidth/width
+        scale: sWidth / width
     });
 
     real_gross_budget = new ScatterPlot({
@@ -494,5 +508,5 @@ function onDataLoaded() {
         width: $("#mainDiv").width(),
         height: $("#mainDiv").height(),
     });
-    
+
 }

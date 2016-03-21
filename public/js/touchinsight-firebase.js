@@ -13,8 +13,6 @@ function Sync(options) {
 
             var data = JSON.parse(JSON.stringify(snapshot.val()));
         
-            //options.callback(counter);
-
         });
 }
 

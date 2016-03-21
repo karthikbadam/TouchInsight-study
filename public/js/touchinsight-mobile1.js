@@ -56,7 +56,7 @@ function playAfterCountdown(q) {
                 setTimeout(function () {
 
                     createVisualizationfromQueryList(q, 1000);
-                    
+
                 }, delay);
 
             }, delay);
@@ -67,23 +67,26 @@ function playAfterCountdown(q) {
 
 }
 
+var answer = 0;
 
 function playInteractions(currentTask) {
 
     var dialog = d3.select("#dialog");
-    
+
 
     // add new task description
     d3.select("#task-text").select("text").remove();
     d3.select("#task-text").append("text").text(currentTask + ": " + interactions[currentTask].query[0].text);
-    
+
     d3.select("#false-button").style("background-color", "transparent");
     d3.select("#true-button").style("background-color", "transparent");
-    
+
 
     dialog.select("#button-panel").select("#play-button")
         .on("click", function () {
         
+            attempts++;
+
             // make sure the content is back to default
             createVisualizationfromQueryList(interactions[0].query, 0);
 
@@ -103,72 +106,80 @@ function playInteractions(currentTask) {
                 d3.select("#count-down")
                     .style("background-image", "url('/images/three.png')");
                 dialog.style("display", "block");
-                
+
             }, delay);
 
         });
-    
-    
+
+
     // true false
     d3.select("#true-button").on("click", function () {
-        
-         d3.select("#false-button").style("background-color", "transparent");
-         d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
-        
+
+        answer = 1;
+
+        d3.select("#false-button").style("background-color", "transparent");
+        d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
+
     });
-    
+
     d3.select("#false-button").on("click", function () {
         
-         d3.select("#true-button").style("background-color", "transparent");
-         d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
-        
+        answer = 0;
+
+        d3.select("#true-button").style("background-color", "transparent");
+        d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
+
     });
-    
+
     d3.select("#next-button").on("click", function () {
-        
+
         var log = {};
-        
+
         log.query = interactions[currentTask].query;
         log.timing = Date.now() - startTime;
         log.attempts = attempts;
-        
+        log.answer = answer;
+        log.actual = interactions[currentTask].query[0].answer;
+
         recordings[currentTask] = log;
-        
+
         //restart
-        startTime = Date.now();  
+        startTime = Date.now();
         attempts = 0;
-            
+
         createVisualizationfromQueryList(interactions[0].query, 0);
-        
+
         currentTask++;
-        
-        if (currentTask == interactions.length ) {
-         
+
+        if (currentTask == interactions.length) {
+
             console.log(recordings);
-            
+
+            touchSync.push(recordings);
+
             dialog.style("display", "none");
-            
+
             return;
         }
-        
+
         playInteractions(currentTask);
-        
+
     });
-    
-     d3.select("#previous-button").on("click", function () {
-         
-        if (currentTask == 0) 
+
+    d3.select("#previous-button").on("click", function () {
+
+        if (currentTask == 0)
             return;
-         
+
         //restart
-        startTime = Date.now();  
+        startTime = Date.now();
         attempts = 0;
-          
+
         createVisualizationfromQueryList(interactions[0].query, 0);
-         
+
         currentTask--;
         playInteractions(currentTask);
-        
+
     });
 }
 
@@ -195,9 +206,10 @@ $(document).ready(function () {
     };
 
     createVisualizationfromQueryList(interactions[0].query, 0);
-    
+
     playInteractions(1);
 
+    touchSync = new Sync({});
 });
 
 
@@ -226,9 +238,9 @@ function createVisualizationfromQueryList(queryList, duration) {
         }
 
     }).done(function (data) {
-        
+
         if (duration == null) {
-            duration = 0;   
+            duration = 0;
         }
 
         data = JSON.parse(data);
@@ -277,7 +289,7 @@ function processByYear(data) {
         }
 
         //cdate = cmonth + "/" + cyear;
-        cdate = "" +cyear;
+        cdate = "" + cyear;
 
         if (cdate in newData) {
             newData[cdate][gross].push(d["_id"][gross]);
@@ -319,14 +331,14 @@ function processByYear(data) {
         returnData.push(datum);
 
     });
-    
+
     if (returnData.length == 1) {
         var newDatum = {};
-        
-        newDatum[date] = "" + (+returnData[0][date] - 1); 
+
+        newDatum[date] = "" + (+returnData[0][date] - 1);
         newDatum["avg_" + gross] = 0;
         newDatum["avg_" + budget] = 0;
-        
+
         returnData.push(newDatum);
     }
 
@@ -379,7 +391,7 @@ function processByGenre(data) {
 
     });
 
-    
+
     console.log(returnData);
     return returnData;
 }

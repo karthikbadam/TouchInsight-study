@@ -7,8 +7,6 @@ var genre = "Major_Genre";
 
 var index = 0;
 
-var device = 0;
-
 var width = 0;
 
 var height = 0;
@@ -65,6 +63,7 @@ function playAfterCountdown(q) {
 
 }
 
+var answer = 0;
 
 function playInteractions(currentTask) {
 
@@ -111,14 +110,14 @@ function playInteractions(currentTask) {
     
     // true false
     d3.select("#true-button").on("click", function () {
-        
+        answer = 1;
          d3.select("#false-button").style("background-color", "transparent");
          d3.select("#true-button").style("background-color", "rgb(158, 202, 225)");
         
     });
     
     d3.select("#false-button").on("click", function () {
-        
+        answer = 0;
          d3.select("#true-button").style("background-color", "transparent");
          d3.select("#false-button").style("background-color", "rgb(158, 202, 225)");
         
@@ -131,6 +130,8 @@ function playInteractions(currentTask) {
         log.query = interactions[0].query;
         log.timing = Date.now() - startTime;
         log.attempts = attempts;
+        log.answer = answer;
+        log.actual = interactions[currentTask].query[0].answer;
         
         recordings[currentTask] = log;
         
@@ -145,6 +146,8 @@ function playInteractions(currentTask) {
         if (currentTask == interactions.length ) {
          
             console.log(recordings);
+            
+            touchSync.push(recordings);
             
             dialog.style("display", "none");
             
@@ -198,6 +201,8 @@ $(document).ready(function () {
     createVisualizationfromQueryList(interactions[0].query, 0);
     
     playInteractions(1);
+    
+    touchSync = new Sync({});
 
 });
 
