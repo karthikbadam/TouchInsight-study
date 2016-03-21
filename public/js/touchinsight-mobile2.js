@@ -1,3 +1,5 @@
+var interactions = interactions1;
+
 var gross = "Worldwide_Gross";
 var ratings = "IMDB_Rating";
 var budget = "Production_Budget";
@@ -40,7 +42,7 @@ var attempts = 0;
 var recordings = {};
 var currentTask = 1;
 
-var interactions = interactions1;
+
 
 function playAfterCountdown(q) {
     // enable panel

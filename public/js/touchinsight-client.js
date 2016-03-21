@@ -1,3 +1,5 @@
+var interactions = interactions3;
+
 var gross = "Worldwide_Gross";
 var ratings = "IMDB_Rating";
 var budget = "Production_Budget";
@@ -32,8 +34,6 @@ var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 var recordings = {};
 
 var currentTask = 1;
-
-var interactions = interactions3;
 
 function playAfterCountdown(q) {
     // enable panel
