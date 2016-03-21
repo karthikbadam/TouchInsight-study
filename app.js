@@ -250,9 +250,14 @@ function parseQueryString(params) {
             break;
 
         case "in":
+
             for (var i = 0; i < d.value.length; i++) {
-                d.value[i] = parseFloat(d.value[i]);   
+                if (!isNaN(d.value[i])) {
+                    d.value[i] = parseFloat(d.value[i]);
+                }
             }
+
+            console.log(d.value);
             q[d.index] = {
                 "$in": d.value
             };

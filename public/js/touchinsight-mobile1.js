@@ -31,68 +31,13 @@ var gross_time, genre_gross, gross_budget, genre_budget, budget_time;
 
 var month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-var interactions = [{
-        query: [{
-            index: budget,
-            value: [0, 300000000],
-            operator: "range",
-            logic: "CLEAN", 
-    }]
-},
-    {
-        query: [{
-            index: budget,
-            value: [6000000, 320000000],
-            operator: "range",
-            logic: "CLEAN",
-            text: "Did the Avg. Budget after year 2005 decrease compared to before?"
-    }, {
-            index: gross,
-            value: [200000000, 3000000000],
-            operator: "range",
-            logic: "AND"
-    }]
-}, {
-        query: [{
-            index: ratings,
-            value: [8, 10],
-            operator: "range",
-            logic: "CLEAN",
-            text: "Did the Avg. Budget for Action movies increase?"
-    }]
-}, {
-        query: [{
-            index: ratings,
-            value: [0, 4],
-            operator: "range",
-            logic: "CLEAN",
-            text: "Did the Avg. Gross from Adventure movies increase?"
-    }]
-}, {
-        query: [{
-            index: budget,
-            value: [10000000, 20000000],
-            operator: "range",
-            logic: "CLEAN",
-            text: "Did the Avg. Budget after 2005 increase  ?"
-    }]
-}, {
-        query: [{
-            index: ratings,
-            value: [2, 5, 10],
-            operator: "in",
-            logic: "CLEAN"
-    }]
-}, {
-        query: [{
-            index: director,
-            value: "Martin Scorsese",
-            operator: "equal",
-            logic: "CLEAN"
-    }]
-}];
+var startTime = Date.now();
+var attempts = 0;
+var recordings = {};
 
 var currentTask = 1;
+
+var interactions = interactions0;
 
 function playAfterCountdown(q) {
     // enable panel
@@ -130,7 +75,7 @@ function playInteractions(currentTask) {
 
     // add new task description
     d3.select("#task-text").select("text").remove();
-    d3.select("#task-text").append("text").text(interactions[currentTask].query[0].text);
+    d3.select("#task-text").append("text").text(currentTask + ": " + interactions[currentTask].query[0].text);
     
     d3.select("#false-button").style("background-color", "transparent");
     d3.select("#true-button").style("background-color", "transparent");
@@ -140,7 +85,7 @@ function playInteractions(currentTask) {
         .on("click", function () {
         
             // make sure the content is back to default
-            createVisualizationfromQueryList(interactions[currentTask-1].query, 0);
+            createVisualizationfromQueryList(interactions[0].query, 0);
 
             // disable the panel
             dialog.style("display", "none");
@@ -181,14 +126,48 @@ function playInteractions(currentTask) {
     
     d3.select("#next-button").on("click", function () {
         
-        createVisualizationfromQueryList(interactions[currentTask].query, 0);
-        playInteractions(currentTask + 1)
+        var log = {};
+        
+        log.query = interactions[currentTask].query;
+        log.timing = Date.now() - startTime;
+        log.attempts = attempts;
+        
+        recordings[currentTask] = log;
+        
+        //restart
+        startTime = Date.now();  
+        attempts = 0;
+            
+        createVisualizationfromQueryList(interactions[0].query, 0);
+        
+        currentTask++;
+        
+        if (currentTask == interactions.length ) {
+         
+            console.log(recordings);
+            
+            dialog.style("display", "none");
+            
+            return;
+        }
+        
+        playInteractions(currentTask);
         
     });
     
      d3.select("#previous-button").on("click", function () {
-        
-        playInteractions(currentTask - 1)
+         
+        if (currentTask == 0) 
+            return;
+         
+        //restart
+        startTime = Date.now();  
+        attempts = 0;
+          
+        createVisualizationfromQueryList(interactions[0].query, 0);
+         
+        currentTask--;
+        playInteractions(currentTask);
         
     });
 }
